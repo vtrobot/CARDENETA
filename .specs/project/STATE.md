@@ -12,7 +12,7 @@
 - (Nenhuma no momento)
 
 ## Pendências (Todos)
-- [ ] Inicializar repositório Git.
+- [x] Inicializar repositório Git.
 - [x] Criar projetos frontend (React) e backend (Node.js).
 - [x] Configurar projeto no Supabase e modelar schema do banco de dados inicial (Auth e Tabelas Base).
 - [ ] Implementar épicos na ordem definida pelo Roadmap.

@@ -107,3 +107,48 @@ body {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.main-nav {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.main-nav a {
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+  opacity: 0.9;
+  transition: opacity 0.2s;
+}
+
+.main-nav a:hover {
+  opacity: 1;
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: rgba(255,255,255,0.1);
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+}
+
+.role-badge {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.app-main-content {
+  flex: 1;
+  background-color: var(--bg-color);
+}

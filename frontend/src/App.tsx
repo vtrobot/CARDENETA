@@ -1,36 +1,54 @@
 import React from 'react';
-import { BookOpen } from 'lucide-react';
+import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
+import { BookOpen, UserCircle, Bell } from 'lucide-react';
+import { Mural } from './pages/Mural';
+import { PainelGestao } from './pages/PainelGestao';
+import './index.css';
 
-function App() {
+function AppLayout({ children }: { children: React.ReactNode }) {
+  // Simulação de login
+  const mockRole = localStorage.getItem('mockUserRole') || 'responsavel';
+  
   return (
     <div className="app-container" data-testid="app-container">
       <header className="app-header">
         <div className="logo-container">
-          <BookOpen className="logo-icon" size={32} />
+          <BookOpen className="logo-icon" size={28} />
           <h1>Caderneta Escola & Família</h1>
         </div>
-      </header>
-      <main className="app-main">
-        <section className="welcome-card" data-testid="welcome-card">
-          <h2>Bem-vindo(a)</h2>
-          <p>O canal oficial de comunicação entre escola e família.</p>
-          <div className="features">
-            <div className="feature-item">
-              <span className="feature-icon">📢</span>
-              <p>Comunicados Oficiais</p>
-            </div>
-            <div className="feature-item">
-              <span className="feature-icon">✅</span>
-              <p>Confirmação de Leitura</p>
-            </div>
-            <div className="feature-item">
-              <span className="feature-icon">📱</span>
-              <p>Acesso Fácil</p>
-            </div>
+        <nav className="main-nav">
+          {mockRole === 'responsavel' && <Link to="/mural">Mural</Link>}
+          {(mockRole === 'professor' || mockRole === 'coordenacao') && <Link to="/painel-gestao">Painel Gestão</Link>}
+          
+          <div className="user-profile">
+            <span className="role-badge">{mockRole}</span>
+            <UserCircle size={24} />
           </div>
-        </section>
+        </nav>
+      </header>
+      <main className="app-main-content">
+        {children}
       </main>
     </div>
+  );
+}
+
+function Welcome() {
+  const mockRole = localStorage.getItem('mockUserRole') || 'responsavel';
+  return <Navigate to={mockRole === 'responsavel' ? '/mural' : '/painel-gestao'} replace />;
+}
+
+function App() {
+  return (
+    <Router>
+      <AppLayout>
+        <Routes>
+          <Route path="/" element={<Welcome />} />
+          <Route path="/mural" element={<Mural />} />
+          <Route path="/painel-gestao" element={<PainelGestao />} />
+        </Routes>
+      </AppLayout>
+    </Router>
   );
 }
 
