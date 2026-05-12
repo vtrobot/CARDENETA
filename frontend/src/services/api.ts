@@ -81,3 +81,41 @@ export const marcarMensagemLida = async (id: string) => {
   if (!response.ok) throw new Error('Erro ao marcar como lida');
   return response.json();
 };
+
+// Administração
+export const fetchTurmasAdmin = async () => {
+  const headers = await getAuthHeaders();
+  const response = await fetch(`${API_BASE_URL}/admin/turmas`, { headers });
+  if (!response.ok) throw new Error('Erro ao buscar turmas');
+  return response.json();
+};
+
+export const createTurmaAdmin = async (data: { nome: string, turno: string }) => {
+  const headers = await getAuthHeaders();
+  const response = await fetch(`${API_BASE_URL}/admin/turmas`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) throw new Error('Erro ao criar turma');
+  return response.json();
+};
+
+export const fetchUsuariosByPapel = async (papel: string) => {
+  const headers = await getAuthHeaders();
+  const response = await fetch(`${API_BASE_URL}/admin/usuarios?papel=${papel}`, { headers });
+  if (!response.ok) throw new Error('Erro ao buscar usuários');
+  return response.json();
+};
+
+export const createVinculoProfTurma = async (professor_id: string, turma_id: string) => {
+  const headers = await getAuthHeaders();
+  const response = await fetch(`${API_BASE_URL}/admin/vinculos/professor-turma`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ professor_id, turma_id }),
+  });
+  if (!response.ok) throw new Error('Erro ao criar vínculo');
+  return response.json();
+};
+
