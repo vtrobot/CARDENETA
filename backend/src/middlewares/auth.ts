@@ -1,29 +1,54 @@
 import { Request, Response, NextFunction } from 'express';
+import { supabase } from '../supabaseClient';
 
-// Middleware provisório para simular um usuário autenticado (Épico 3 trará o real com JWT)
-export const mockAuthMiddleware = (req: Request, res: Response, next: NextFunction) => {
-  const userId = req.headers['x-user-id'] as string;
-  const userRole = req.headers['x-user-role'] as string;
+// Middleware Real de Autenticação JWT usando Supabase
+export const verifySupabaseJWT = async (req: Request, res: Response, next: NextFunction) => {
+  const authHeader = req.headers.authorization;
 
-  if (!userId || !userRole) {
-    return res.status(401).json({ error: 'Usuário não autenticado. Forneça x-user-id e x-user-role nos headers.' });
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'Token de autenticação não fornecido ou inválido (Formato: Bearer <token>)' });
   }
 
-  // Anexa o usuário mockado ao request
-  (req as any).user = {
-    id: userId,
-    role: userRole
-  };
+  const token = authHeader.split(' ')[1];
 
-  next();
+  try {
+    // Valida o Token com o Supabase
+    const { data: { user }, error } = await supabase.auth.getUser(token);
+
+    if (error || !user) {
+      return res.status(401).json({ error: 'Token expirado ou inválido.' });
+    }
+
+    // Busca o papel (Role) do usuário na nossa tabela pública
+    const { data: userData, error: roleError } = await supabase
+      .from('usuarios')
+      .select('papel')
+      .eq('id', user.id)
+      .single();
+
+    if (roleError || !userData) {
+      return res.status(403).json({ error: 'Perfil de usuário não encontrado no sistema.' });
+    }
+
+    // Anexa os dados validados no request
+    (req as any).user = {
+      id: user.id,
+      role: userData.papel
+    };
+
+    next();
+  } catch (err) {
+    res.status(500).json({ error: 'Erro interno na validação da sessão.' });
+  }
 };
 
 export const requireRole = (roles: string[]) => {
   return (req: Request, res: Response, next: NextFunction) => {
     const user = (req as any).user;
     if (!user || !roles.includes(user.role)) {
-      return res.status(403).json({ error: 'Acesso negado. Perfil sem permissão.' });
+      return res.status(403).json({ error: 'Acesso negado. Perfil sem permissão para esta ação.' });
     }
     next();
   };
 };
+

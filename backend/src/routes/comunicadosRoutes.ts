@@ -7,12 +7,12 @@ import {
   updateComunicado,
   deleteComunicado
 } from '../controllers/comunicadosController';
-import { mockAuthMiddleware, requireRole } from '../middlewares/auth';
+import { verifySupabaseJWT, requireRole } from '../middlewares/auth';
 
 const router = Router();
 
 // Todas as rotas de comunicados requerem usuário autenticado
-router.use(mockAuthMiddleware);
+router.use(verifySupabaseJWT);
 
 // Leituras (B2, B3) - Todos os perfis podem listar e ver detalhes
 router.get('/', getComunicados);

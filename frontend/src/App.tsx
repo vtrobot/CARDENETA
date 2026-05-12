@@ -1,14 +1,23 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
-import { BookOpen, UserCircle, Bell, MessageSquare } from 'lucide-react';
+import { BrowserRouter as Router, Routes, Route, Link, Navigate, useNavigate } from 'react-router-dom';
+import { BookOpen, UserCircle, MessageSquare, LogOut } from 'lucide-react';
 import { Mural } from './pages/Mural';
 import { PainelGestao } from './pages/PainelGestao';
 import { Mensagens } from './pages/Mensagens';
+import { Login } from './pages/Login';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { ProtectedRoute } from './components/ProtectedRoute';
+import { supabase } from './lib/supabase';
 import './index.css';
 
 function AppLayout({ children }: { children: React.ReactNode }) {
-  // Simulação de login
-  const mockRole = localStorage.getItem('mockUserRole') || 'responsavel';
+  const { role } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate('/login');
+  };
   
   return (
     <div className="app-container" data-testid="app-container">
@@ -18,13 +27,15 @@ function AppLayout({ children }: { children: React.ReactNode }) {
           <h1>Caderneta Escola & Família</h1>
         </div>
         <nav className="main-nav">
-          {mockRole === 'responsavel' && <Link to="/mural">Mural</Link>}
+          {role === 'responsavel' && <Link to="/mural">Mural</Link>}
           <Link to="/mensagens" className="nav-icon-link" title="Mensagens"><MessageSquare size={20} /> Mensagens</Link>
-          {(mockRole === 'professor' || mockRole === 'coordenacao') && <Link to="/painel-gestao">Painel Gestão</Link>}
+          {(role === 'professor' || role === 'coordenacao') && <Link to="/painel-gestao">Painel Gestão</Link>}
           
           <div className="user-profile">
-            <span className="role-badge">{mockRole}</span>
-            <UserCircle size={24} />
+            <span className="role-badge">{role || '...'}</span>
+            <button onClick={handleLogout} className="btn-logout" title="Sair">
+              <LogOut size={20} />
+            </button>
           </div>
         </nav>
       </header>
@@ -36,22 +47,38 @@ function AppLayout({ children }: { children: React.ReactNode }) {
 }
 
 function Welcome() {
-  const mockRole = localStorage.getItem('mockUserRole') || 'responsavel';
-  return <Navigate to={mockRole === 'responsavel' ? '/mural' : '/painel-gestao'} replace />;
+  const { role, user, isLoading } = useAuth();
+  
+  if (isLoading) return <div className="page-loading">Carregando...</div>;
+  if (!user) return <Navigate to="/login" replace />;
+  return <Navigate to={role === 'responsavel' ? '/mural' : '/painel-gestao'} replace />;
 }
 
 function App() {
   return (
-    <Router>
-      <AppLayout>
+    <AuthProvider>
+      <Router>
         <Routes>
+          <Route path="/login" element={<Login />} />
           <Route path="/" element={<Welcome />} />
-          <Route path="/mural" element={<Mural />} />
-          <Route path="/mensagens" element={<Mensagens />} />
-          <Route path="/painel-gestao" element={<PainelGestao />} />
+          <Route path="/mural" element={
+            <ProtectedRoute allowedRoles={['responsavel']}>
+              <AppLayout><Mural /></AppLayout>
+            </ProtectedRoute>
+          } />
+          <Route path="/mensagens" element={
+            <ProtectedRoute>
+              <AppLayout><Mensagens /></AppLayout>
+            </ProtectedRoute>
+          } />
+          <Route path="/painel-gestao" element={
+            <ProtectedRoute allowedRoles={['professor', 'coordenacao']}>
+              <AppLayout><PainelGestao /></AppLayout>
+            </ProtectedRoute>
+          } />
         </Routes>
-      </AppLayout>
-    </Router>
+      </Router>
+    </AuthProvider>
   );
 }
 

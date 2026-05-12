@@ -5,12 +5,12 @@ import {
   createMensagem,
   markAsRead
 } from '../controllers/mensagensController';
-import { mockAuthMiddleware } from '../middlewares/auth';
+import { verifySupabaseJWT } from '../middlewares/auth';
 
 const router = Router();
 
 // Todas as rotas requerem usuário autenticado
-router.use(mockAuthMiddleware);
+router.use(verifySupabaseJWT);
 
 // Retorna lista de conversas ativas (inbox)
 router.get('/', getConversas);
