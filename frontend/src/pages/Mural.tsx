@@ -2,10 +2,13 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { fetchComunicados, confirmarCienciaComunicado, fetchComunicadoById } from '../services/api';
 import { ComunicadoCard, Comunicado } from '../components/ComunicadoCard';
+import { useNavigate } from 'react-router-dom';
+import { MessageSquare } from 'lucide-react';
 import './Mural.css';
 
 export function Mural() {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [selectedComunicado, setSelectedComunicado] = useState<Comunicado | null>(null);
 
   const { data, isLoading, error } = useQuery({
@@ -34,6 +37,17 @@ export function Mural() {
 
   const isPendingCiencia = selectedComunicado?.nivel_urgencia === 'alta' && 
     (!selectedComunicado.leituras_comunicados || !selectedComunicado.leituras_comunicados[0]?.ciencia_confirmada);
+
+  const handleTirarDuvida = () => {
+    if (!selectedComunicado) return;
+    navigate('/mensagens', {
+      state: {
+        presetDestinatario: selectedComunicado.autor_id,
+        presetNome: 'Autor do Comunicado',
+        comunicadoOrigem: selectedComunicado.id
+      }
+    });
+  };
 
   if (isLoading) return <div className="page-loading">Carregando mural...</div>;
   if (error) return <div className="page-error">Erro ao carregar comunicados.</div>;
@@ -69,18 +83,24 @@ export function Mural() {
             <div className="modal-body">
               <p>{selectedComunicado.corpo_texto}</p>
             </div>
-            {isPendingCiencia && (
-              <div className="modal-footer action-required">
-                <p className="warning-text">Este comunicado requer confirmação de ciência.</p>
-                <button 
-                  className="btn-primary btn-ciencia"
-                  onClick={() => cienciaMutation.mutate(selectedComunicado.id)}
-                  disabled={cienciaMutation.isPending}
-                >
-                  {cienciaMutation.isPending ? 'Confirmando...' : 'Confirmar Ciência'}
+            <div className={`modal-footer ${isPendingCiencia ? 'action-required' : 'standard'}`}>
+              {isPendingCiencia ? (
+                <>
+                  <p className="warning-text">Este comunicado requer confirmação de ciência.</p>
+                  <button 
+                    className="btn-primary btn-ciencia"
+                    onClick={() => cienciaMutation.mutate(selectedComunicado.id)}
+                    disabled={cienciaMutation.isPending}
+                  >
+                    {cienciaMutation.isPending ? 'Confirmando...' : 'Confirmar Ciência'}
+                  </button>
+                </>
+              ) : (
+                <button className="btn-secondary btn-duvida" onClick={handleTirarDuvida}>
+                  <MessageSquare size={16} /> Tirar Dúvida
                 </button>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
       )}

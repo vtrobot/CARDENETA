@@ -1,8 +1,9 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
-import { BookOpen, UserCircle, Bell } from 'lucide-react';
+import { BookOpen, UserCircle, Bell, MessageSquare } from 'lucide-react';
 import { Mural } from './pages/Mural';
 import { PainelGestao } from './pages/PainelGestao';
+import { Mensagens } from './pages/Mensagens';
 import './index.css';
 
 function AppLayout({ children }: { children: React.ReactNode }) {
@@ -18,6 +19,7 @@ function AppLayout({ children }: { children: React.ReactNode }) {
         </div>
         <nav className="main-nav">
           {mockRole === 'responsavel' && <Link to="/mural">Mural</Link>}
+          <Link to="/mensagens" className="nav-icon-link" title="Mensagens"><MessageSquare size={20} /> Mensagens</Link>
           {(mockRole === 'professor' || mockRole === 'coordenacao') && <Link to="/painel-gestao">Painel Gestão</Link>}
           
           <div className="user-profile">
@@ -45,6 +47,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Welcome />} />
           <Route path="/mural" element={<Mural />} />
+          <Route path="/mensagens" element={<Mensagens />} />
           <Route path="/painel-gestao" element={<PainelGestao />} />
         </Routes>
       </AppLayout>

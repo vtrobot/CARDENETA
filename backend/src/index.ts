@@ -2,6 +2,7 @@ import express, { Request, Response } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import comunicadosRoutes from './routes/comunicadosRoutes';
+import mensagensRoutes from './routes/mensagensRoutes';
 
 // Load environment variables
 dotenv.config();
@@ -15,6 +16,7 @@ app.use(express.json());
 
 // Routes
 app.use('/api/comunicados', comunicadosRoutes);
+app.use('/api/mensagens', mensagensRoutes);
 
 // Healthcheck route
 app.get('/health', (req: Request, res: Response) => {
