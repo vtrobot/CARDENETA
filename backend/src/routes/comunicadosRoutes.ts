@@ -14,7 +14,18 @@ const router = Router();
 // Todas as rotas de comunicados requerem usuário autenticado
 router.use(verifySupabaseJWT);
 
-// Leituras (B2, B3) - Todos os perfis podem listar e ver detalhes
+/**
+ * @openapi
+ * /comunicados:
+ *   get:
+ *     summary: Lista todos os comunicados
+ *     tags: [Comunicados]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Retorna a lista de comunicados.
+ */
 router.get('/', getComunicados);
 router.get('/:id', getComunicadoById);
 

@@ -18,7 +18,7 @@ export function PainelGestao() {
 
   // ADMIN STATE
   const [isCreatingTurma, setIsCreatingTurma] = useState(false);
-  const [turmaForm, setTurmaForm] = useState({ nome: '', turno: 'Manhã' });
+  const [turmaForm, setTurmaForm] = useState({ nome: '', turno: 'Manhã', ano_letivo: new Date().getFullYear() });
   const [isCreatingVinculo, setIsCreatingVinculo] = useState(false);
   const [vinculoForm, setVinculoForm] = useState({ professor_id: '', turma_id: '' });
 
@@ -55,7 +55,7 @@ export function PainelGestao() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-turmas'] });
       setIsCreatingTurma(false);
-      setTurmaForm({ nome: '', turno: 'Manhã' });
+      setTurmaForm({ nome: '', turno: 'Manhã', ano_letivo: new Date().getFullYear() });
     },
   });
 
@@ -192,6 +192,10 @@ export function PainelGestao() {
                     <option value="Integral">Integral</option>
                   </select>
                 </div>
+                <div className="form-group">
+                  <label>Ano Letivo</label>
+                  <input type="number" required value={turmaForm.ano_letivo} onChange={e => setTurmaForm({...turmaForm, ano_letivo: parseInt(e.target.value)})} />
+                </div>
                 <div className="form-actions">
                   <button type="button" className="btn-secondary" onClick={() => setIsCreatingTurma(false)}>Cancelar</button>
                   <button type="submit" className="btn-primary" disabled={createTurmaMutation.isPending}>
@@ -237,6 +241,7 @@ export function PainelGestao() {
                   <tr>
                     <th>Nome</th>
                     <th>Turno</th>
+                    <th>Ano Letivo</th>
                     <th>Criada em</th>
                   </tr>
                 </thead>
@@ -245,6 +250,7 @@ export function PainelGestao() {
                     <tr key={t.id}>
                       <td>{t.nome}</td>
                       <td>{t.turno}</td>
+                      <td>{t.ano_letivo}</td>
                       <td>{new Date(t.criado_em).toLocaleDateString()}</td>
                     </tr>
                   ))}

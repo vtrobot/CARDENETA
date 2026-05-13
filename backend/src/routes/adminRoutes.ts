@@ -55,6 +55,7 @@ router.get('/turmas', getTurmas);
  *             required:
  *               - nome
  *               - turno
+ *               - ano_letivo
  *             properties:
  *               nome:
  *                 type: string
@@ -63,6 +64,9 @@ router.get('/turmas', getTurmas);
  *                 type: string
  *                 enum: [Matutino, Vespertino, Integral]
  *                 example: "Matutino"
+ *               ano_letivo:
+ *                 type: number
+ *                 example: 2026
  *     responses:
  *       201:
  *         description: Turma criada com sucesso

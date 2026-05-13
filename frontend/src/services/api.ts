@@ -90,7 +90,7 @@ export const fetchTurmasAdmin = async () => {
   return response.json();
 };
 
-export const createTurmaAdmin = async (data: { nome: string, turno: string }) => {
+export const createTurmaAdmin = async (data: { nome: string, turno: string, ano_letivo: number }) => {
   const headers = await getAuthHeaders();
   const response = await fetch(`${API_BASE_URL}/admin/turmas`, {
     method: 'POST',

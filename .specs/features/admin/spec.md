@@ -17,7 +17,7 @@ Para que o aplicativo tenha utilidade, ele precisa ser populado com os dados da 
 
 ### Cenário 1: Criar Nova Turma
 **Dado** que um usuário "Coordenação" está no Painel de Gestão
-**Quando** ele acessa a aba "Turmas" e preenche "Nome da Turma" e "Turno"
+**Quando** ele acessa a aba "Turmas" e preenche "Nome da Turma", "Turno" e "Ano Letivo"
 **Então** a API salva o registro e passa a listá-lo na grade.
 
 ### Cenário 2: Vincular Professor à Turma

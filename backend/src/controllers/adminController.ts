@@ -16,13 +16,13 @@ export const getTurmas = async (req: Request, res: Response) => {
 };
 
 export const createTurma = async (req: Request, res: Response) => {
-  const { nome, turno } = req.body;
-  if (!nome || !turno) return res.status(400).json({ error: 'Nome e turno são obrigatórios.' });
+  const { nome, turno, ano_letivo } = req.body;
+  if (!nome || !turno || !ano_letivo) return res.status(400).json({ error: 'Nome, turno e ano_letivo são obrigatórios.' });
 
   try {
     const { data, error } = await supabase
       .from('turmas')
-      .insert([{ nome, turno }])
+      .insert([{ nome, turno, ano_letivo }])
       .select()
       .single();
 
