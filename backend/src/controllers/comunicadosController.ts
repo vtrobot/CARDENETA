@@ -13,13 +13,11 @@ export const getComunicados = async (req: Request, res: Response) => {
   try {
     let query = supabase
       .from('comunicados')
-      .select('*, leituras_comunicados(status_lido, ciencia_confirmada)', { count: 'exact' });
+      .select('*, leituras_comunicados(assinatura_digital, data_leitura)', { count: 'exact' });
 
-    // Para o MVP mockado de filtros (a query real dependerá da Policy do RLS estar aplicando os filtros de turma do aluno_id automaticamente)
+    // Para o MVP mockado de filtros
     if (user.role === 'responsavel' && aluno_id) {
-       // Se o aluno for passado, seria adicionado um filtro de turma aqui, 
-       // mas assumindo que o RLS do Supabase já cuida de proteger os acessos no token, 
-       // podemos apenas simular o filtro na consulta base.
+       // Filtro simulado
     }
 
     const { data, error, count } = await query
@@ -28,8 +26,17 @@ export const getComunicados = async (req: Request, res: Response) => {
 
     if (error) throw error;
 
+    // Mapear para o formato que o Frontend espera
+    const mappedData = data.map((item: any) => ({
+      ...item,
+      leituras_comunicados: item.leituras_comunicados?.map((lc: any) => ({
+        status_lido: !!lc.data_leitura,
+        ciencia_confirmada: !!lc.assinatura_digital
+      }))
+    }));
+
     res.json({
-      data,
+      data: mappedData,
       meta: {
         total: count,
         page: pageNum,
@@ -55,13 +62,14 @@ export const getComunicadoById = async (req: Request, res: Response) => {
     if (error) throw error;
     if (!comunicado) return res.status(404).json({ error: 'Comunicado não encontrado' });
 
-    // Regra (B3): Se for responsável, e urgência não for ALTA, marcar como lido
     if (user.role === 'responsavel' && comunicado.nivel_urgencia !== 'alta') {
       await supabase
         .from('leituras_comunicados')
-        .update({ status_lido: true, data_hora_leitura: new Date().toISOString() })
-        .eq('comunicado_id', id)
-        .eq('responsavel_id', user.id);
+        .upsert({ 
+          comunicado_id: id,
+          responsavel_id: user.id,
+          data_leitura: new Date().toISOString() 
+        }, { onConflict: 'comunicado_id, responsavel_id' });
     }
 
     res.json(comunicado);
@@ -92,13 +100,12 @@ export const confirmarCiencia = async (req: Request, res: Response) => {
     // Regra (B4): Confirma a ciência e define como lido
     const { error: updateError } = await supabase
       .from('leituras_comunicados')
-      .update({
-        status_lido: true,
-        ciencia_confirmada: true,
-        data_hora_leitura: new Date().toISOString()
-      })
-      .eq('comunicado_id', id)
-      .eq('responsavel_id', user.id);
+      .upsert({
+        comunicado_id: id,
+        responsavel_id: user.id,
+        data_leitura: new Date().toISOString(),
+        assinatura_digital: 'Assinatura Eletrônica'
+      }, { onConflict: 'comunicado_id, responsavel_id' });
 
     if (updateError) throw updateError;
 

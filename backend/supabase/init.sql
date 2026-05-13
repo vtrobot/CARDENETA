@@ -58,7 +58,7 @@ CREATE TABLE public.responsaveis_alunos (
 CREATE TABLE public.comunicados (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     titulo VARCHAR(200) NOT NULL,
-    conteudo TEXT NOT NULL,
+    corpo_texto TEXT NOT NULL,
     autor_id UUID NOT NULL REFERENCES public.usuarios(id),
     turma_id UUID REFERENCES public.turmas(id),
     nivel_urgencia VARCHAR(20) NOT NULL DEFAULT 'baixa' CHECK (nivel_urgencia IN ('baixa', 'media', 'alta')),
@@ -82,7 +82,7 @@ CREATE TABLE public.mensagens_diretas (
     remetente_id UUID NOT NULL REFERENCES public.usuarios(id),
     destinatario_id UUID NOT NULL REFERENCES public.usuarios(id),
     aluno_id UUID REFERENCES public.alunos(id),
-    conteudo TEXT NOT NULL,
+    corpo_texto TEXT NOT NULL,
     lida BOOLEAN DEFAULT FALSE,
     data_envio TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc', now())
 );

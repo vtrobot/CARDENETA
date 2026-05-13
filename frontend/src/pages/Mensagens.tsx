@@ -28,7 +28,7 @@ export function Mensagens() {
   const location = useLocation();
   const stateData = location.state as { presetDestinatario?: string, presetNome?: string, comunicadoOrigem?: string } | null;
 
-  const currentUserId = localStorage.getItem('mockUserId') || 'mock-id-123';
+  const currentUserId = localStorage.getItem('mockUserId') || '1d210d1d-6c17-4cff-aa1a-65379dca5b3d'; // Pai da Maria
   const [activeContact, setActiveContact] = useState<{id: string, nome: string} | null>(
     stateData?.presetDestinatario ? { id: stateData.presetDestinatario, nome: stateData.presetNome || 'Contato' } : null
   );
