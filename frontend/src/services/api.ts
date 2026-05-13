@@ -97,7 +97,10 @@ export const createTurmaAdmin = async (data: { nome: string, turno: string, ano_
     headers,
     body: JSON.stringify(data),
   });
-  if (!response.ok) throw new Error('Erro ao criar turma');
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.error ? `${errorData.error} (Sent: ${errorData.valueSent})` : 'Erro ao criar turma');
+  }
   return response.json();
 };
 

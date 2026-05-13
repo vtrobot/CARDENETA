@@ -18,7 +18,7 @@ export function PainelGestao() {
 
   // ADMIN STATE
   const [isCreatingTurma, setIsCreatingTurma] = useState(false);
-  const [turmaForm, setTurmaForm] = useState({ nome: '', turno: 'Manhã', ano_letivo: new Date().getFullYear() });
+  const [turmaForm, setTurmaForm] = useState({ nome: '', turno: 'manha', ano_letivo: new Date().getFullYear() });
   const [isCreatingVinculo, setIsCreatingVinculo] = useState(false);
   const [vinculoForm, setVinculoForm] = useState({ professor_id: '', turma_id: '' });
 
@@ -55,8 +55,11 @@ export function PainelGestao() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-turmas'] });
       setIsCreatingTurma(false);
-      setTurmaForm({ nome: '', turno: 'Manhã', ano_letivo: new Date().getFullYear() });
+      setTurmaForm({ nome: '', turno: 'manha', ano_letivo: new Date().getFullYear() });
     },
+    onError: (err: any) => {
+      alert("Erro ao criar turma: " + err.message);
+    }
   });
 
   const createVinculoMutation = useMutation({
@@ -187,9 +190,9 @@ export function PainelGestao() {
                 <div className="form-group">
                   <label>Turno</label>
                   <select value={turmaForm.turno} onChange={e => setTurmaForm({...turmaForm, turno: e.target.value})}>
-                    <option value="Manhã">Manhã</option>
-                    <option value="Tarde">Tarde</option>
-                    <option value="Integral">Integral</option>
+                    <option value="manha">Manhã</option>
+                    <option value="tarde">Tarde</option>
+                    <option value="integral">Integral</option>
                   </select>
                 </div>
                 <div className="form-group">
@@ -249,7 +252,7 @@ export function PainelGestao() {
                   {turmas?.map((t: any) => (
                     <tr key={t.id}>
                       <td>{t.nome}</td>
-                      <td>{t.turno}</td>
+                      <td>{t.turno === 'manha' ? 'Manhã' : t.turno === 'tarde' ? 'Tarde' : 'Integral'}</td>
                       <td>{t.ano_letivo}</td>
                       <td>{new Date(t.criado_em).toLocaleDateString()}</td>
                     </tr>

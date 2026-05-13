@@ -19,17 +19,19 @@ export const createTurma = async (req: Request, res: Response) => {
   const { nome, turno, ano_letivo } = req.body;
   if (!nome || !turno || !ano_letivo) return res.status(400).json({ error: 'Nome, turno e ano_letivo são obrigatórios.' });
 
+  const normalizedTurno = turno.toString().normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+
   try {
     const { data, error } = await supabase
       .from('turmas')
-      .insert([{ nome, turno, ano_letivo }])
+      .insert([{ nome, turno: normalizedTurno, ano_letivo }])
       .select()
       .single();
 
     if (error) throw error;
     res.status(201).json(data);
   } catch (error: any) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: error.message, valueSent: normalizedTurno });
   }
 };
 
