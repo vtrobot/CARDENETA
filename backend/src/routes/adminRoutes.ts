@@ -13,14 +13,134 @@ const router = Router();
 router.use(verifySupabaseJWT);
 router.use(requireRole(['coordenacao']));
 
+/**
+ * @swagger
+ * tags:
+ *   name: Admin
+ *   description: Endpoints administrativos (requer papel de coordenação)
+ */
+
 // Turmas
+/**
+ * @swagger
+ * /admin/turmas:
+ *   get:
+ *     summary: Lista todas as turmas
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Lista de turmas retornada com sucesso
+ *       401:
+ *         description: Não autorizado (token ausente ou inválido)
+ *       403:
+ *         description: Proibido (usuário não tem papel de coordenação)
+ */
 router.get('/turmas', getTurmas);
+/**
+ * @swagger
+ * /admin/turmas:
+ *   post:
+ *     summary: Cadastra uma nova turma
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - nome
+ *               - turno
+ *             properties:
+ *               nome:
+ *                 type: string
+ *                 example: "1º Ano A"
+ *               turno:
+ *                 type: string
+ *                 enum: [Matutino, Vespertino, Integral]
+ *                 example: "Matutino"
+ *     responses:
+ *       201:
+ *         description: Turma criada com sucesso
+ *       400:
+ *         description: Erro de validação (dados faltando)
+ *       401:
+ *         description: Não autorizado
+ *       403:
+ *         description: Proibido
+ */
 router.post('/turmas', createTurma);
 
 // Usuários
+/**
+ * @swagger
+ * /admin/usuarios:
+ *   get:
+ *     summary: Lista usuários por papel
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: papel
+ *         required: true
+ *         schema:
+ *           type: string
+ *           enum: [professor, responsavel, coordenacao]
+ *         description: Papel do usuário a ser filtrado
+ *     responses:
+ *       200:
+ *         description: Lista de usuários retornada com sucesso
+ *       400:
+ *         description: Parâmetro papel não fornecido
+ *       401:
+ *         description: Não autorizado
+ *       403:
+ *         description: Proibido
+ */
 router.get('/usuarios', getUsuariosByPapel);
 
 // Vínculos
+/**
+ * @swagger
+ * /admin/vinculos/professor-turma:
+ *   post:
+ *     summary: Cria um vínculo entre um professor e uma turma
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - professor_id
+ *               - turma_id
+ *             properties:
+ *               professor_id:
+ *                 type: string
+ *                 format: uuid
+ *                 example: "123e4567-e89b-12d3-a456-426614174000"
+ *               turma_id:
+ *                 type: string
+ *                 format: uuid
+ *                 example: "123e4567-e89b-12d3-a456-426614174001"
+ *     responses:
+ *       201:
+ *         description: Vínculo criado com sucesso
+ *       400:
+ *         description: Vínculo já existe ou erro de validação
+ *       401:
+ *         description: Não autorizado
+ *       403:
+ *         description: Proibido
+ */
 router.post('/vinculos/professor-turma', createVinculoProfessorTurma);
 
 export default router;
