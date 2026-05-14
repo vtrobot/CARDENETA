@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { fetchComunicados, criarComunicado, fetchTurmasAdmin, createTurmaAdmin, fetchUsuariosByPapel, createVinculoProfTurma, createUsuarioAdmin } from '../services/api';
+import { fetchComunicados, criarComunicado, fetchTurmasAdmin, createTurmaAdmin, fetchUsuariosByPapel, createVinculoProfTurma, createUsuarioAdmin, fetchAlunosAdmin, createAlunoAdmin } from '../services/api';
 import { Comunicado } from '../components/ComunicadoCard';
 import { useAuth } from '../contexts/AuthContext';
 import './PainelGestao.css';
@@ -24,6 +24,8 @@ export function PainelGestao() {
   const [vinculoForm, setVinculoForm] = useState({ professor_id: '', turma_id: '' });
   const [isCreatingUsuario, setIsCreatingUsuario] = useState(false);
   const [usuarioForm, setUsuarioForm] = useState({ nome: '', email: '', senha: '', papel: 'professor' });
+  const [isCreatingAluno, setIsCreatingAluno] = useState(false);
+  const [alunoForm, setAlunoForm] = useState({ nome: '', matricula: '', data_nascimento: '', turma_id: '' });
 
   // QUERIES
   const { data: comunicados, isLoading: loadingCom } = useQuery({
@@ -47,6 +49,12 @@ export function PainelGestao() {
     queryKey: ['admin-usuarios-all'],
     queryFn: () => fetchUsuariosByPapel(),
     enabled: role === 'coordenacao' && activeTab === 'admin' && adminSubTab === 'usuarios',
+  });
+
+  const { data: alunos, isLoading: loadingAlunos } = useQuery({
+    queryKey: ['admin-alunos'],
+    queryFn: fetchAlunosAdmin,
+    enabled: role === 'coordenacao' && activeTab === 'admin' && adminSubTab === 'alunos',
   });
 
   // MUTATIONS
@@ -94,6 +102,19 @@ export function PainelGestao() {
     },
     onError: (err: any) => {
       alert("Erro ao criar usuário: " + err.message);
+    }
+  });
+
+  const createAlunoMutation = useMutation({
+    mutationFn: createAlunoAdmin,
+    onSuccess: () => {
+      alert("Aluno cadastrado com sucesso!");
+      setIsCreatingAluno(false);
+      setAlunoForm({ nome: '', matricula: '', data_nascimento: '', turma_id: '' });
+      queryClient.invalidateQueries({ queryKey: ['admin-alunos'] });
+    },
+    onError: (err: any) => {
+      alert("Erro ao cadastrar aluno: " + err.message);
     }
   });
 
@@ -370,15 +391,73 @@ export function PainelGestao() {
               <div className="content-header">
                 <h3>Gestão de Alunos</h3>
                 <div className="header-actions">
-                  <button className="btn-primary" disabled style={{ opacity: 0.6, cursor: 'not-allowed' }}>
+                  <button className="btn-primary" onClick={() => setIsCreatingAluno(true)}>
                     + Cadastrar Aluno
                   </button>
                 </div>
               </div>
-              <div className="admin-list" style={{ marginTop: '2rem', background: '#f8fafc', padding: '3rem', borderRadius: '8px', textAlign: 'center', border: '1px dashed #cbd5e1' }}>
-                <p style={{ color: '#64748b', fontSize: '1.1rem' }}>
-                  A funcionalidade de cadastro de alunos será implementada em breve.
-                </p>
+
+              {isCreatingAluno && (
+                <div className="form-card" style={{ maxWidth: '600px' }}>
+                  <h3>Cadastrar Novo Aluno</h3>
+                  <form onSubmit={e => { e.preventDefault(); createAlunoMutation.mutate(alunoForm); }} className="comunicado-form">
+                    <div className="form-group">
+                      <label>Nome Completo</label>
+                      <input type="text" required value={alunoForm.nome} onChange={e => setAlunoForm({...alunoForm, nome: e.target.value})} />
+                    </div>
+                    <div className="form-group">
+                      <label>Matrícula</label>
+                      <input type="text" required value={alunoForm.matricula} onChange={e => setAlunoForm({...alunoForm, matricula: e.target.value})} />
+                    </div>
+                    <div className="form-group">
+                      <label>Data de Nascimento</label>
+                      <input type="date" required value={alunoForm.data_nascimento} onChange={e => setAlunoForm({...alunoForm, data_nascimento: e.target.value})} />
+                    </div>
+                    <div className="form-group">
+                      <label>Turma</label>
+                      <select value={alunoForm.turma_id} onChange={e => setAlunoForm({...alunoForm, turma_id: e.target.value})}>
+                        <option value="">Selecione uma turma...</option>
+                        {turmas?.map((t: any) => (
+                          <option key={t.id} value={t.id}>{t.nome} ({t.turno})</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="form-actions">
+                      <button type="button" className="btn-secondary" onClick={() => setIsCreatingAluno(false)}>Cancelar</button>
+                      <button type="submit" className="btn-primary" disabled={createAlunoMutation.isPending}>
+                        {createAlunoMutation.isPending ? 'Cadastrando...' : 'Cadastrar Aluno'}
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              )}
+
+              <div className="admin-list">
+                {loadingAlunos ? <p>Carregando...</p> : (
+                  <table className="admin-table">
+                    <thead>
+                      <tr>
+                        <th>Nome</th>
+                        <th>Matrícula</th>
+                        <th>Turma</th>
+                        <th>Nascimento</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {alunos?.map((a: any) => (
+                        <tr key={a.id}>
+                          <td>{a.nome}</td>
+                          <td>{a.matricula}</td>
+                          <td>{a.turmas?.nome || 'Sem Turma'}</td>
+                          <td>{new Date(a.data_nascimento).toLocaleDateString()}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+                {alunos?.length === 0 && !loadingAlunos && (
+                  <p style={{ textAlign: 'center', marginTop: '2rem', color: '#64748b' }}>Nenhum aluno cadastrado.</p>
+                )}
               </div>
             </div>
           )}

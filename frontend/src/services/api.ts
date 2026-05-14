@@ -137,3 +137,25 @@ export const createVinculoProfTurma = async (professor_id: string, turma_id: str
   return response.json();
 };
 
+// Alunos
+export const fetchAlunosAdmin = async () => {
+  const headers = await getAuthHeaders();
+  const response = await fetch(`${API_BASE_URL}/admin/alunos`, { headers });
+  if (!response.ok) throw new Error('Erro ao buscar alunos');
+  return response.json();
+};
+
+export const createAlunoAdmin = async (data: { nome: string, matricula: string, data_nascimento: string, turma_id?: string }) => {
+  const headers = await getAuthHeaders();
+  const response = await fetch(`${API_BASE_URL}/admin/alunos`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.error || 'Erro ao cadastrar aluno');
+  }
+  return response.json();
+};
+

@@ -4,7 +4,9 @@ import {
   createTurma,
   getUsuariosByPapel,
   createVinculoProfessorTurma,
-  createUsuario
+  createUsuario,
+  getAlunos,
+  createAluno
 } from '../controllers/adminController';
 import { verifySupabaseJWT, requireRole } from '../middlewares/auth';
 
@@ -196,5 +198,63 @@ router.post('/usuarios', createUsuario);
  *         description: Proibido
  */
 router.post('/vinculos/professor-turma', createVinculoProfessorTurma);
+
+// Alunos
+/**
+ * @swagger
+ * /admin/alunos:
+ *   get:
+ *     summary: Lista todos os alunos
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Lista de alunos retornada com sucesso
+ *       401:
+ *         description: Não autorizado
+ */
+router.get('/alunos', getAlunos);
+
+/**
+ * @swagger
+ * /admin/alunos:
+ *   post:
+ *     summary: Cadastra um novo aluno
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - nome
+ *               - matricula
+ *               - data_nascimento
+ *             properties:
+ *               nome:
+ *                 type: string
+ *                 example: "Enzo Silva"
+ *               matricula:
+ *                 type: string
+ *                 example: "2026001"
+ *               data_nascimento:
+ *                 type: string
+ *                 format: date
+ *                 example: "2018-05-15"
+ *               turma_id:
+ *                 type: string
+ *                 format: uuid
+ *                 example: "123e4567-e89b-12d3-a456-426614174001"
+ *     responses:
+ *       201:
+ *         description: Aluno criado com sucesso
+ *       400:
+ *         description: Erro de validação ou matrícula duplicada
+ */
+router.post('/alunos', createAluno);
 
 export default router;

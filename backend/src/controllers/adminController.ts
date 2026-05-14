@@ -117,3 +117,53 @@ export const createUsuario = async (req: Request, res: Response) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+// ALUNOS
+export const getAlunos = async (req: Request, res: Response) => {
+  try {
+    const { data, error } = await supabase
+      .from('alunos')
+      .select(`
+        *,
+        turmas (
+          nome
+        )
+      `)
+      .order('nome', { ascending: true });
+
+    if (error) throw error;
+    res.json(data);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const createAluno = async (req: Request, res: Response) => {
+  const { nome, matricula, data_nascimento, turma_id } = req.body;
+
+  if (!nome || !matricula || !data_nascimento) {
+    return res.status(400).json({ error: 'Nome, matrícula e data de nascimento são obrigatórios.' });
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('alunos')
+      .insert([{ 
+        nome, 
+        matricula, 
+        data_nascimento, 
+        turma_id: turma_id || null 
+      }])
+      .select()
+      .single();
+
+    if (error) {
+      if (error.code === '23505') return res.status(400).json({ error: 'Matrícula já cadastrada.' });
+      throw error;
+    }
+
+    res.status(201).json(data);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+};
