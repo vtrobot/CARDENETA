@@ -37,14 +37,18 @@ export const createTurma = async (req: Request, res: Response) => {
 
 export const getUsuariosByPapel = async (req: Request, res: Response) => {
   const { papel } = req.query;
-  if (!papel) return res.status(400).json({ error: 'Parâmetro papel é obrigatório.' });
 
   try {
-    const { data, error } = await supabase
+    let query = supabase
       .from('usuarios')
-      .select('id, nome, email')
-      .eq('papel', papel)
+      .select('id, nome, email, papel')
       .order('nome', { ascending: true });
+
+    if (papel) {
+      query = query.eq('papel', papel);
+    }
+
+    const { data, error } = await query;
 
     if (error) throw error;
     res.json(data);

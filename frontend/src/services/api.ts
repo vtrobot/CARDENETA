@@ -104,10 +104,25 @@ export const createTurmaAdmin = async (data: { nome: string, turno: string, ano_
   return response.json();
 };
 
-export const fetchUsuariosByPapel = async (papel: string) => {
+export const fetchUsuariosByPapel = async (papel?: string) => {
   const headers = await getAuthHeaders();
-  const response = await fetch(`${API_BASE_URL}/admin/usuarios?papel=${papel}`, { headers });
+  const url = papel ? `${API_BASE_URL}/admin/usuarios?papel=${papel}` : `${API_BASE_URL}/admin/usuarios`;
+  const response = await fetch(url, { headers });
   if (!response.ok) throw new Error('Erro ao buscar usuários');
+  return response.json();
+};
+
+export const createUsuarioAdmin = async (data: { nome: string, email: string, senha?: string, papel: string }) => {
+  const headers = await getAuthHeaders();
+  const response = await fetch(`${API_BASE_URL}/admin/usuarios`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.error || 'Erro ao criar usuário');
+  }
   return response.json();
 };
 
