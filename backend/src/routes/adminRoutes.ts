@@ -3,7 +3,8 @@ import {
   getTurmas,
   createTurma,
   getUsuariosByPapel,
-  createVinculoProfessorTurma
+  createVinculoProfessorTurma,
+  createUsuario
 } from '../controllers/adminController';
 import { verifySupabaseJWT, requireRole } from '../middlewares/auth';
 
@@ -107,6 +108,55 @@ router.post('/turmas', createTurma);
  *         description: Proibido
  */
 router.get('/usuarios', getUsuariosByPapel);
+
+/**
+ * @swagger
+ * /admin/usuarios:
+ *   post:
+ *     summary: Cadastra um novo usuário (professor, responsável, coordenação)
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - nome
+ *               - email
+ *               - senha
+ *               - papel
+ *             properties:
+ *               nome:
+ *                 type: string
+ *                 example: "João Silva"
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: "joao.silva@escola.com"
+ *               senha:
+ *                 type: string
+ *                 format: password
+ *                 example: "senhaSegura123"
+ *               papel:
+ *                 type: string
+ *                 enum: [professor, responsavel, coordenacao]
+ *                 example: "professor"
+ *     responses:
+ *       201:
+ *         description: Usuário criado com sucesso
+ *       400:
+ *         description: Erro de validação
+ *       401:
+ *         description: Não autorizado
+ *       403:
+ *         description: Proibido
+ *       500:
+ *         description: Erro interno
+ */
+router.post('/usuarios', createUsuario);
 
 // Vínculos
 /**
