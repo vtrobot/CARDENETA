@@ -18,10 +18,11 @@
 - [x] **Épico 3: Autenticação e Perfis** (Supabase Auth + Context API + Protected Routes)
 - [x] **Épico 4: Administração e Turmas** (Dashboard Coordenação + Vínculos de Professores)
 - [x] **Melhoria: Cadastro de Alunos** (API + Swagger + Grid + Form)
+- [x] **Melhoria: Vínculo Familiar** (API + Swagger + UI para Gestão de Responsáveis)
 
 ## Próximos Passos Imediatos
 - [ ] Implementar **US07: Gestão de Professores** (Listagem e Edição).
-- [ ] Implementar **US06: Vínculo Familiar** (Vincular alunos a responsáveis).
+- [x] Implementar **US06: Vínculo Familiar** (Vincular alunos a responsáveis - Backend & UI).
 - [ ] Configurar Banco de Dados Real no Supabase (Rodar Scripts SQL).
 - [ ] Rodar testes manuais de fluxo completo.
 

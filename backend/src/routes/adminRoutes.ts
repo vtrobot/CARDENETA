@@ -6,7 +6,11 @@ import {
   createVinculoProfessorTurma,
   createUsuario,
   getAlunos,
-  createAluno
+  createAluno,
+  createVinculoAlunoResponsavel,
+  updateVinculoAlunoResponsavel,
+  deleteVinculoAlunoResponsavel,
+  getVinculosByAluno
 } from '../controllers/adminController';
 import { verifySupabaseJWT, requireRole } from '../middlewares/auth';
 
@@ -256,5 +260,130 @@ router.get('/alunos', getAlunos);
  *         description: Erro de validação ou matrícula duplicada
  */
 router.post('/alunos', createAluno);
+
+// Vínculos Responsável-Aluno
+/**
+ * @swagger
+ * /admin/vinculos/aluno-responsavel:
+ *   post:
+ *     summary: Cria um vínculo entre um responsável e um aluno
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - responsavel_id
+ *               - aluno_id
+ *               - grau_parentesco
+ *             properties:
+ *               responsavel_id:
+ *                 type: string
+ *                 format: uuid
+ *                 example: "123e4567-e89b-12d3-a456-426614174000"
+ *               aluno_id:
+ *                 type: string
+ *                 format: uuid
+ *                 example: "123e4567-e89b-12d3-a456-426614174001"
+ *               grau_parentesco:
+ *                 type: string
+ *                 example: "Pai"
+ *     responses:
+ *       201:
+ *         description: Vínculo criado com sucesso
+ *       400:
+ *         description: Vínculo já existe ou usuário não é responsável
+ */
+router.post('/vinculos/aluno-responsavel', createVinculoAlunoResponsavel);
+
+/**
+ * @swagger
+ * /admin/vinculos/aluno-responsavel/{alunoId}:
+ *   get:
+ *     summary: Lista os vínculos de responsáveis de um aluno específico
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: alunoId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: ID do aluno
+ *     responses:
+ *       200:
+ *         description: Lista de vínculos retornada com sucesso
+ *       401:
+ *         description: Não autorizado
+ */
+router.get('/vinculos/aluno-responsavel/:alunoId', getVinculosByAluno);
+
+/**
+ * @swagger
+ * /admin/vinculos/aluno-responsavel/{id}:
+ *   put:
+ *     summary: Atualiza o grau de parentesco de um vínculo
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: ID do vínculo (UUID da tabela responsaveis_alunos)
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - grau_parentesco
+ *             properties:
+ *               grau_parentesco:
+ *                 type: string
+ *                 example: "Responsável Legal"
+ *     responses:
+ *       200:
+ *         description: Vínculo atualizado com sucesso
+ *       400:
+ *         description: Dados inválidos
+ *       404:
+ *         description: Vínculo não encontrado
+ */
+router.put('/vinculos/aluno-responsavel/:id', updateVinculoAlunoResponsavel);
+
+/**
+ * @swagger
+ * /admin/vinculos/aluno-responsavel/{id}:
+ *   delete:
+ *     summary: Remove um vínculo entre responsável e aluno
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: ID do vínculo
+ *     responses:
+ *       204:
+ *         description: Vínculo removido com sucesso
+ *       404:
+ *         description: Vínculo não encontrado
+ */
+router.delete('/vinculos/aluno-responsavel/:id', deleteVinculoAlunoResponsavel);
 
 export default router;

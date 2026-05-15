@@ -166,3 +166,102 @@ export const createAluno = async (req: Request, res: Response) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+// VÍNCULOS RESPONSÁVEL-ALUNO
+export const createVinculoAlunoResponsavel = async (req: Request, res: Response) => {
+  const { responsavel_id, aluno_id, grau_parentesco } = req.body;
+
+  if (!responsavel_id || !aluno_id || !grau_parentesco) {
+    return res.status(400).json({ error: 'responsavel_id, aluno_id e grau_parentesco são obrigatórios.' });
+  }
+
+  try {
+    // Validar se o usuário é um responsável
+    const { data: user, error: userError } = await supabase
+      .from('usuarios')
+      .select('papel')
+      .eq('id', responsavel_id)
+      .single();
+
+    if (userError || user?.papel !== 'responsavel') {
+      return res.status(400).json({ error: 'O usuário fornecido não possui o papel de responsável.' });
+    }
+
+    const { data, error } = await supabase
+      .from('responsaveis_alunos')
+      .insert([{ responsavel_id, aluno_id, grau_parentesco }])
+      .select()
+      .single();
+
+    if (error) {
+      if (error.code === '23505') return res.status(400).json({ error: 'Este vínculo já existe.' });
+      throw error;
+    }
+
+    res.status(201).json(data);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const updateVinculoAlunoResponsavel = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { grau_parentesco } = req.body;
+
+  if (!grau_parentesco) {
+    return res.status(400).json({ error: 'grau_parentesco é obrigatório para atualização.' });
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('responsaveis_alunos')
+      .update({ grau_parentesco })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    res.json(data);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const deleteVinculoAlunoResponsavel = async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  try {
+    const { error } = await supabase
+      .from('responsaveis_alunos')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+    res.status(204).send();
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+};
+export const getVinculosByAluno = async (req: Request, res: Response) => {
+  const { alunoId } = req.params;
+
+  try {
+    const { data, error } = await supabase
+      .from('responsaveis_alunos')
+      .select(`
+        id,
+        grau_parentesco,
+        usuarios (
+          id,
+          nome,
+          email
+        )
+      `)
+      .eq('aluno_id', alunoId);
+
+    if (error) throw error;
+    res.json(data);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+};

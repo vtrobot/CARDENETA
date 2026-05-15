@@ -159,3 +159,33 @@ export const createAlunoAdmin = async (data: { nome: string, matricula: string, 
   return response.json();
 };
 
+export const fetchVinculosAluno = async (alunoId: string) => {
+  const headers = await getAuthHeaders();
+  const response = await fetch(`${API_BASE_URL}/admin/vinculos/aluno-responsavel/${alunoId}`, { headers });
+  if (!response.ok) throw new Error('Erro ao buscar vínculos do aluno');
+  return response.json();
+};
+
+export const createVinculoAluno = async (data: { responsavel_id: string, aluno_id: string, grau_parentesco: string }) => {
+  const headers = await getAuthHeaders();
+  const response = await fetch(`${API_BASE_URL}/admin/vinculos/aluno-responsavel`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.error || 'Erro ao criar vínculo');
+  }
+  return response.json();
+};
+
+export const deleteVinculoAluno = async (id: string) => {
+  const headers = await getAuthHeaders();
+  const response = await fetch(`${API_BASE_URL}/admin/vinculos/aluno-responsavel/${id}`, {
+    method: 'DELETE',
+    headers,
+  });
+  if (!response.ok) throw new Error('Erro ao excluir vínculo');
+  return true;
+};

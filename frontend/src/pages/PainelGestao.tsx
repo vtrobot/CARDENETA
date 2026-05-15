@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { fetchComunicados, criarComunicado, fetchTurmasAdmin, createTurmaAdmin, fetchUsuariosByPapel, createVinculoProfTurma, createUsuarioAdmin, fetchAlunosAdmin, createAlunoAdmin } from '../services/api';
+import { fetchComunicados, criarComunicado, fetchTurmasAdmin, createTurmaAdmin, fetchUsuariosByPapel, createVinculoProfTurma, createUsuarioAdmin, fetchAlunosAdmin, createAlunoAdmin, fetchVinculosAluno, createVinculoAluno, deleteVinculoAluno } from '../services/api';
 import { Comunicado } from '../components/ComunicadoCard';
 import { useAuth } from '../contexts/AuthContext';
 import './PainelGestao.css';
@@ -26,6 +26,11 @@ export function PainelGestao() {
   const [usuarioForm, setUsuarioForm] = useState({ nome: '', email: '', senha: '', papel: 'professor' });
   const [isCreatingAluno, setIsCreatingAluno] = useState(false);
   const [alunoForm, setAlunoForm] = useState({ nome: '', matricula: '', data_nascimento: '', turma_id: '' });
+
+  // VÍNCULO RESPONSÁVEL STATE
+  const [selectedAlunoForVinculo, setSelectedAlunoForVinculo] = useState<any>(null);
+  const [isManagingVinculos, setIsManagingVinculos] = useState(false);
+  const [newVinculoForm, setNewVinculoForm] = useState({ responsavel_id: '', grau_parentesco: 'Pai' });
 
   // QUERIES
   const { data: comunicados, isLoading: loadingCom } = useQuery({
@@ -55,6 +60,18 @@ export function PainelGestao() {
     queryKey: ['admin-alunos'],
     queryFn: fetchAlunosAdmin,
     enabled: role === 'coordenacao' && activeTab === 'admin' && adminSubTab === 'alunos',
+  });
+
+  const { data: responsaveis } = useQuery({
+    queryKey: ['admin-responsaveis'],
+    queryFn: () => fetchUsuariosByPapel('responsavel'),
+    enabled: role === 'coordenacao' && activeTab === 'admin',
+  });
+
+  const { data: vinculosAluno, refetch: refetchVinculos } = useQuery({
+    queryKey: ['vinculos-aluno', selectedAlunoForVinculo?.id],
+    queryFn: () => fetchVinculosAluno(selectedAlunoForVinculo.id),
+    enabled: !!selectedAlunoForVinculo && isManagingVinculos,
   });
 
   // MUTATIONS
@@ -116,6 +133,21 @@ export function PainelGestao() {
     onError: (err: any) => {
       alert("Erro ao cadastrar aluno: " + err.message);
     }
+  });
+
+  const createVinculoAlunoMutation = useMutation({
+    mutationFn: (data: any) => createVinculoAluno(data),
+    onSuccess: () => {
+      refetchVinculos();
+      setNewVinculoForm({ responsavel_id: '', grau_parentesco: 'Pai' });
+    },
+    onError: (err: any) => alert("Erro ao vincular: " + err.message)
+  });
+
+  const deleteVinculoAlunoMutation = useMutation({
+    mutationFn: (id: string) => deleteVinculoAluno(id),
+    onSuccess: () => refetchVinculos(),
+    onError: (err: any) => alert("Erro ao remover vínculo: " + err.message)
   });
 
   return (
@@ -441,6 +473,7 @@ export function PainelGestao() {
                         <th>Matrícula</th>
                         <th>Turma</th>
                         <th>Nascimento</th>
+                        <th>Ações</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -450,6 +483,15 @@ export function PainelGestao() {
                           <td>{a.matricula}</td>
                           <td>{a.turmas?.nome || 'Sem Turma'}</td>
                           <td>{new Date(a.data_nascimento).toLocaleDateString()}</td>
+                          <td>
+                            <button 
+                              className="btn-icon" 
+                              title="Gerenciar Responsáveis"
+                              onClick={() => { setSelectedAlunoForVinculo(a); setIsManagingVinculos(true); }}
+                            >
+                              🔗
+                            </button>
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -458,6 +500,94 @@ export function PainelGestao() {
                 {alunos?.length === 0 && !loadingAlunos && (
                   <p style={{ textAlign: 'center', marginTop: '2rem', color: '#64748b' }}>Nenhum aluno cadastrado.</p>
                 )}
+              </div>
+            </div>
+          )}
+          {/* MODAL GERENCIAR RESPONSÁVEIS */}
+          {isManagingVinculos && selectedAlunoForVinculo && (
+            <div className="modal-overlay">
+              <div className="modal-content" style={{ maxWidth: '700px', width: '90%' }}>
+                <div className="modal-header">
+                  <h3>Responsáveis: {selectedAlunoForVinculo.nome}</h3>
+                  <button className="btn-close" onClick={() => setIsManagingVinculos(false)}>×</button>
+                </div>
+                
+                <div className="vinculos-current">
+                  <h4>Vínculos Atuais</h4>
+                  <table className="admin-table">
+                    <thead>
+                      <tr>
+                        <th>Nome</th>
+                        <th>Parentesco</th>
+                        <th>Ações</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {vinculosAluno?.map((v: any) => (
+                        <tr key={v.id}>
+                          <td>{v.usuarios?.nome}</td>
+                          <td>{v.grau_parentesco}</td>
+                          <td>
+                            <button 
+                              className="btn-icon delete" 
+                              onClick={() => { if(confirm('Remover este vínculo?')) deleteVinculoAlunoMutation.mutate(v.id); }}
+                            >
+                              🗑️
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                      {(!vinculosAluno || vinculosAluno.length === 0) && (
+                        <tr>
+                          <td colSpan={3} style={{ textAlign: 'center', padding: '1rem' }}>Nenhum responsável vinculado.</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className="vinculo-new" style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid #e2e8f0' }}>
+                  <h4>Vincular Novo Responsável</h4>
+                  <form 
+                    className="comunicado-form" 
+                    style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: '1rem', alignItems: 'end' }}
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      createVinculoAlunoMutation.mutate({
+                        aluno_id: selectedAlunoForVinculo.id,
+                        responsavel_id: newVinculoForm.responsavel_id,
+                        grau_parentesco: newVinculoForm.grau_parentesco
+                      });
+                    }}
+                  >
+                    <div className="form-group">
+                      <label>Responsável</label>
+                      <select 
+                        required 
+                        value={newVinculoForm.responsavel_id} 
+                        onChange={e => setNewVinculoForm({...newVinculoForm, responsavel_id: e.target.value})}
+                      >
+                        <option value="">Selecione...</option>
+                        {responsaveis?.map((r: any) => (
+                          <option key={r.id} value={r.id}>{r.nome} ({r.email})</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="form-group">
+                      <label>Parentesco</label>
+                      <input 
+                        type="text" 
+                        required 
+                        placeholder="Ex: Pai, Mãe, Tia..." 
+                        value={newVinculoForm.grau_parentesco} 
+                        onChange={e => setNewVinculoForm({...newVinculoForm, grau_parentesco: e.target.value})} 
+                      />
+                    </div>
+                    <button type="submit" className="btn-primary" style={{ marginBottom: '0.5rem' }} disabled={createVinculoAlunoMutation.isPending}>
+                      {createVinculoAlunoMutation.isPending ? '...' : 'Vincular'}
+                    </button>
+                  </form>
+                </div>
               </div>
             </div>
           )}
