@@ -16,9 +16,8 @@ import { verifySupabaseJWT, requireRole } from '../middlewares/auth';
 
 const router = Router();
 
-// Todas as rotas admin requerem usuário logado e papel de coordenação
+// Todas as rotas admin requerem usuário logado
 router.use(verifySupabaseJWT);
-router.use(requireRole(['coordenacao']));
 
 /**
  * @swagger
@@ -42,9 +41,10 @@ router.use(requireRole(['coordenacao']));
  *       401:
  *         description: Não autorizado (token ausente ou inválido)
  *       403:
- *         description: Proibido (usuário não tem papel de coordenação)
+ *         description: Proibido (usuário não tem papel permitido)
  */
-router.get('/turmas', getTurmas);
+router.get('/turmas', requireRole(['coordenacao', 'professor']), getTurmas);
+
 /**
  * @swagger
  * /admin/turmas:
@@ -113,7 +113,7 @@ router.post('/turmas', createTurma);
  *       403:
  *         description: Proibido
  */
-router.get('/usuarios', getUsuariosByPapel);
+router.get('/usuarios', requireRole(['coordenacao']), getUsuariosByPapel);
 
 /**
  * @swagger
@@ -162,7 +162,7 @@ router.get('/usuarios', getUsuariosByPapel);
  *       500:
  *         description: Erro interno
  */
-router.post('/usuarios', createUsuario);
+router.post('/usuarios', requireRole(['coordenacao']), createUsuario);
 
 // Vínculos
 /**
@@ -201,7 +201,7 @@ router.post('/usuarios', createUsuario);
  *       403:
  *         description: Proibido
  */
-router.post('/vinculos/professor-turma', createVinculoProfessorTurma);
+router.post('/vinculos/professor-turma', requireRole(['coordenacao']), createVinculoProfessorTurma);
 
 // Alunos
 /**
@@ -218,7 +218,7 @@ router.post('/vinculos/professor-turma', createVinculoProfessorTurma);
  *       401:
  *         description: Não autorizado
  */
-router.get('/alunos', getAlunos);
+router.get('/alunos', requireRole(['coordenacao']), getAlunos);
 
 /**
  * @swagger
@@ -259,7 +259,7 @@ router.get('/alunos', getAlunos);
  *       400:
  *         description: Erro de validação ou matrícula duplicada
  */
-router.post('/alunos', createAluno);
+router.post('/alunos', requireRole(['coordenacao']), createAluno);
 
 // Vínculos Responsável-Aluno
 /**
@@ -298,7 +298,7 @@ router.post('/alunos', createAluno);
  *       400:
  *         description: Vínculo já existe ou usuário não é responsável
  */
-router.post('/vinculos/aluno-responsavel', createVinculoAlunoResponsavel);
+router.post('/vinculos/aluno-responsavel', requireRole(['coordenacao']), createVinculoAlunoResponsavel);
 
 /**
  * @swagger
@@ -322,7 +322,7 @@ router.post('/vinculos/aluno-responsavel', createVinculoAlunoResponsavel);
  *       401:
  *         description: Não autorizado
  */
-router.get('/vinculos/aluno-responsavel/:alunoId', getVinculosByAluno);
+router.get('/vinculos/aluno-responsavel/:alunoId', requireRole(['coordenacao']), getVinculosByAluno);
 
 /**
  * @swagger
@@ -360,7 +360,7 @@ router.get('/vinculos/aluno-responsavel/:alunoId', getVinculosByAluno);
  *       404:
  *         description: Vínculo não encontrado
  */
-router.put('/vinculos/aluno-responsavel/:id', updateVinculoAlunoResponsavel);
+router.put('/vinculos/aluno-responsavel/:id', requireRole(['coordenacao']), updateVinculoAlunoResponsavel);
 
 /**
  * @swagger
@@ -384,6 +384,6 @@ router.put('/vinculos/aluno-responsavel/:id', updateVinculoAlunoResponsavel);
  *       404:
  *         description: Vínculo não encontrado
  */
-router.delete('/vinculos/aluno-responsavel/:id', deleteVinculoAlunoResponsavel);
+router.delete('/vinculos/aluno-responsavel/:id', requireRole(['coordenacao']), deleteVinculoAlunoResponsavel);
 
 export default router;

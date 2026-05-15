@@ -41,7 +41,7 @@ export function PainelGestao() {
   const { data: turmas, isLoading: loadingTurmas } = useQuery({
     queryKey: ['admin-turmas'],
     queryFn: fetchTurmasAdmin,
-    enabled: role === 'coordenacao' && activeTab === 'admin',
+    enabled: (role === 'coordenacao' || role === 'professor') && (activeTab === 'admin' || activeTab === 'comunicados'),
   });
 
   const { data: professores } = useQuery({
@@ -195,6 +195,19 @@ export function PainelGestao() {
                     <option value="baixa">Baixa</option>
                     <option value="media">Média</option>
                     <option value="alta">Alta</option>
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label>Turma Destino</label>
+                  <select 
+                    required 
+                    value={comunicadoForm.id_turma_destino} 
+                    onChange={e => setComunicadoForm({...comunicadoForm, id_turma_destino: e.target.value})}
+                  >
+                    <option value="">Selecione uma turma...</option>
+                    {turmas?.map((t: any) => (
+                      <option key={t.id} value={t.id}>{t.nome} ({t.turno})</option>
+                    ))}
                   </select>
                 </div>
                 <div className="form-group">

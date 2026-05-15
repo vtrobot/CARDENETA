@@ -119,9 +119,19 @@ export const createComunicado = async (req: Request, res: Response) => {
   const { titulo, corpo_texto, nivel_urgencia, id_turma_destino } = req.body;
   const user = (req as any).user;
 
+  // Validação de campos obrigatórios
+  if (!titulo || !corpo_texto || !nivel_urgencia || !id_turma_destino) {
+    return res.status(400).json({ error: 'Título, corpo, urgência e turma de destino são obrigatórios.' });
+  }
+
+  // Validação de nível de urgência
+  const urgenciasValidas = ['baixa', 'media', 'alta'];
+  if (!urgenciasValidas.includes(nivel_urgencia)) {
+    return res.status(400).json({ error: 'Nível de urgência inválido. Use: baixa, media ou alta.' });
+  }
+
   try {
-    // A validação B5: "Validar se Professor tem vínculo com a turma" deve ser feita aqui ou via RLS.
-    // O RLS já faz isso no INSERT, mas vamos incluir uma validação básica preventiva.
+    // A validação B5: "Validar se Professor tem vínculo com a turma"
     if (user.role === 'professor') {
       const { data: vinculo } = await supabase
         .from('professores_turmas')
