@@ -88,7 +88,6 @@ export const createUsuario = async (req: Request, res: Response) => {
   }
 
   try {
-    // Criação do usuário via API Admin (não loga o usuário que está fazendo a requisição)
     const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
       email,
       password: senha,

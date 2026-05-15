@@ -8,7 +8,7 @@
   - Rotas `/mural` (Responsável) e `/painel-gestao` (Professor/Coord.)
 
 ### Épico 4 — Administração e Cadastros (Prioridade 2: Cadastro Base)
-- [ ] **US05**: Gestão de Alunos e Turmas
+- [x] **US05**: Gestão de Alunos e Turmas
 - [ ] **US07**: Gestão de Professores
 - [ ] **US06**: Vínculo Familiar
 
