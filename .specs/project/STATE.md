@@ -19,10 +19,12 @@
 - [x] **Épico 4: Administração e Turmas** (Dashboard Coordenação + Vínculos de Professores)
 - [x] **Melhoria: Cadastro de Alunos** (API + Swagger + Grid + Form)
 - [x] **Melhoria: Vínculo Familiar** (API + Swagger + UI para Gestão de Responsáveis)
+- [x] **Refatoração e Acessibilidade: Painel de Gestão** (WCAG + Separação de Abas + Filtro Alunos)
 
 ## Próximos Passos Imediatos
 - [ ] Implementar **US07: Gestão de Professores** (Listagem e Edição).
 - [x] Implementar **US06: Vínculo Familiar** (Vincular alunos a responsáveis - Backend & UI).
+- [ ] Implementar Lógica de Mensageria (A partir do ícone adicionado em Alunos).
 - [ ] Configurar Banco de Dados Real no Supabase (Rodar Scripts SQL).
 - [ ] Rodar testes manuais de fluxo completo.
 
