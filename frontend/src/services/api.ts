@@ -61,7 +61,7 @@ export const fetchThread = async (contactId: string) => {
   return response.json();
 };
 
-export const enviarMensagem = async (data: { corpo_texto: string, id_destinatario: string, id_comunicado_origem?: string, id_mensagem_resposta?: string }) => {
+export const enviarMensagem = async (data: { corpo_texto: string, id_destinatario: string, id_comunicado_origem?: string, id_mensagem_resposta?: string, aluno_id?: string }) => {
   const headers = await getAuthHeaders();
   const response = await fetch(`${API_BASE_URL}/mensagens`, {
     method: 'POST',
@@ -79,6 +79,13 @@ export const marcarMensagemLida = async (id: string) => {
     headers,
   });
   if (!response.ok) throw new Error('Erro ao marcar como lida');
+  return response.json();
+};
+
+export const fetchContatosSugeridos = async () => {
+  const headers = await getAuthHeaders();
+  const response = await fetch(`${API_BASE_URL}/mensagens/contatos-sugeridos`, { headers });
+  if (!response.ok) throw new Error('Erro ao buscar contatos sugeridos');
   return response.json();
 };
 

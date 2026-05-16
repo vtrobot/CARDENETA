@@ -1,6 +1,9 @@
 import { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { fetchAlunosAdmin, createAlunoAdmin, fetchUsuariosByPapel, fetchVinculosAluno, createVinculoAluno, deleteVinculoAluno } from '../../services/api';
+import { useAuth } from '../../contexts/AuthContext';
+import { User, MessageCircle } from 'lucide-react';
 
 interface AlunosTabProps {
   turmas: any[] | undefined;
@@ -8,6 +11,7 @@ interface AlunosTabProps {
 
 export function AlunosTab({ turmas }: AlunosTabProps) {
   const queryClient = useQueryClient();
+  const { role } = useAuth();
   const [isCreatingAluno, setIsCreatingAluno] = useState(false);
   const [alunoForm, setAlunoForm] = useState({ nome: '', matricula: '', data_nascimento: '', turma_id: '' });
   
@@ -19,6 +23,17 @@ export function AlunosTab({ turmas }: AlunosTabProps) {
   const [isManagingVinculos, setIsManagingVinculos] = useState(false);
   const [newVinculoForm, setNewVinculoForm] = useState({ responsavel_id: '', grau_parentesco: 'Pai' });
 
+  // MENSAGEM STATE
+  const navigate = useNavigate();
+  const [isSelectingResponsavel, setIsSelectingResponsavel] = useState(false);
+  const [alunoParaMensagem, setAlunoParaMensagem] = useState<any>(null);
+
+  const { data: vinculosParaMensagem } = useQuery({
+    queryKey: ['vinculos-aluno-msg', alunoParaMensagem?.id],
+    queryFn: () => fetchVinculosAluno(alunoParaMensagem.id),
+    enabled: !!alunoParaMensagem && isSelectingResponsavel,
+  });
+
   const { data: alunos, isLoading: loadingAlunos } = useQuery({
     queryKey: ['admin-alunos'],
     queryFn: fetchAlunosAdmin,
@@ -27,6 +42,7 @@ export function AlunosTab({ turmas }: AlunosTabProps) {
   const { data: responsaveis } = useQuery({
     queryKey: ['admin-responsaveis'],
     queryFn: () => fetchUsuariosByPapel('responsavel'),
+    enabled: role === 'coordenacao',
   });
 
   const { data: vinculosAluno, refetch: refetchVinculos } = useQuery({
@@ -90,9 +106,11 @@ export function AlunosTab({ turmas }: AlunosTabProps) {
               ))}
             </select>
           </div>
-          <button className="btn-primary" onClick={() => setIsCreatingAluno(true)}>
-            + Cadastrar Aluno
-          </button>
+          {role === 'coordenacao' && (
+            <button className="btn-primary" onClick={() => setIsCreatingAluno(true)}>
+              + Cadastrar Aluno
+            </button>
+          )}
         </div>
       </div>
 
@@ -174,20 +192,26 @@ export function AlunosTab({ turmas }: AlunosTabProps) {
                   <td>{new Date(a.data_nascimento).toLocaleDateString()}</td>
                   <td>
                     <div style={{ display: 'flex', gap: '0.5rem' }}>
-                      <button 
-                        className="btn-icon" 
-                        title="Gerenciar Responsáveis"
-                        aria-label="Gerenciar responsáveis"
-                        onClick={() => { setSelectedAlunoForVinculo(a); setIsManagingVinculos(true); }}
-                      >
-                        🔗
-                      </button>
+                      {role === 'coordenacao' && (
+                        <button 
+                          className="btn-icon" 
+                          title="Gerenciar Responsáveis"
+                          aria-label="Gerenciar responsáveis"
+                          onClick={() => { setSelectedAlunoForVinculo(a); setIsManagingVinculos(true); }}
+                        >
+                          🔗
+                        </button>
+                      )}
                       <button 
                         className="btn-icon" 
                         title="Enviar Mensagem ao Responsável"
                         aria-label="Enviar mensagem ao responsável"
+                        onClick={() => {
+                          setAlunoParaMensagem(a);
+                          setIsSelectingResponsavel(true);
+                        }}
                       >
-                        💬
+                        <MessageCircle size={18} />
                       </button>
                     </div>
                   </td>
@@ -288,6 +312,61 @@ export function AlunosTab({ turmas }: AlunosTabProps) {
                   {createVinculoAlunoMutation.isPending ? '...' : 'Vincular'}
                 </button>
               </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL SELEÇÃO DE RESPONSÁVEL PARA MENSAGEM */}
+      {isSelectingResponsavel && alunoParaMensagem && (
+        <div className="modal-overlay">
+          <div className="modal-content" style={{ maxWidth: '500px' }}>
+            <div className="modal-header">
+              <h3>Contatar Responsável</h3>
+              <button className="btn-close" onClick={() => setIsSelectingResponsavel(false)}>×</button>
+            </div>
+            <p style={{ color: '#64748b', marginBottom: '1.5rem' }}>
+              Selecione qual responsável de <strong>{alunoParaMensagem.nome}</strong> você deseja contatar.
+            </p>
+            
+            <div className="vinculos-selection-list" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              {vinculosParaMensagem?.map((v: any) => (
+                <div 
+                  key={v.id} 
+                  className="selection-item"
+                  style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    padding: '1rem', 
+                    border: '1px solid #e2e8f0', 
+                    borderRadius: '8px', 
+                    cursor: 'pointer',
+                    transition: 'all 0.2s'
+                  }}
+                  onClick={() => {
+                    navigate('/mensagens', { 
+                      state: { 
+                        presetDestinatario: v.responsavel_id, 
+                        presetNome: v.usuarios?.nome,
+                        alunoId: alunoParaMensagem.id
+                      } 
+                    });
+                  }}
+                >
+                  <div className="conversa-avatar" style={{ marginRight: '1rem', background: '#e0e7ff', color: '#4f46e5' }}>
+                    <User size={20} />
+                  </div>
+                  <div className="info">
+                    <h4 style={{ margin: 0, color: '#1e293b' }}>{v.usuarios?.nome}</h4>
+                    <span style={{ fontSize: '0.85rem', color: '#64748b' }}>{v.grau_parentesco}</span>
+                  </div>
+                </div>
+              ))}
+              {(!vinculosParaMensagem || vinculosParaMensagem.length === 0) && (
+                <p style={{ textAlign: 'center', padding: '2rem', color: '#94a3b8' }}>
+                  Este aluno não possui responsáveis vinculados.
+                </p>
+              )}
             </div>
           </div>
         </div>

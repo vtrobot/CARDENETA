@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { fetchConversas, fetchThread, enviarMensagem, marcarMensagemLida } from '../services/api';
-import { Search, Send, User } from 'lucide-react';
+import { fetchConversas, fetchThread, enviarMensagem, marcarMensagemLida, fetchContatosSugeridos } from '../services/api';
+import { Send, User, MessageCircle } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import './Mensagens.css';
 
 interface Conversa {
@@ -24,17 +25,21 @@ interface Mensagem {
 }
 
 export function Mensagens() {
+  const { user, role } = useAuth();
   const queryClient = useQueryClient();
   const location = useLocation();
-  const stateData = location.state as { presetDestinatario?: string, presetNome?: string, comunicadoOrigem?: string } | null;
+  const stateData = location.state as { presetDestinatario?: string, presetNome?: string, comunicadoOrigem?: string, alunoId?: string } | null;
 
-  const currentUserId = localStorage.getItem('mockUserId') || '1d210d1d-6c17-4cff-aa1a-65379dca5b3d'; // Pai da Maria
+  const currentUserId = user?.id;
   const [activeContact, setActiveContact] = useState<{id: string, nome: string} | null>(
     stateData?.presetDestinatario ? { id: stateData.presetDestinatario, nome: stateData.presetNome || 'Contato' } : null
   );
   const [inputText, setInputText] = useState('');
+  const [isNewChatModalOpen, setIsNewChatModalOpen] = useState(false);
   const maxChars = 500;
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const isSchoolStaff = role === 'professor' || role === 'coordenacao';
 
   const { data: conversas, isLoading: loadingConversas } = useQuery({
     queryKey: ['conversas'],
@@ -46,6 +51,12 @@ export function Mensagens() {
     queryFn: () => fetchThread(activeContact!.id),
     enabled: !!activeContact,
     refetchInterval: 5000, // Pooling simples p/ MVP
+  });
+
+  const { data: sugeridos } = useQuery({
+    queryKey: ['contatos-sugeridos'],
+    queryFn: fetchContatosSugeridos,
+    enabled: isNewChatModalOpen
   });
 
   const enviarMutation = useMutation({
@@ -61,7 +72,7 @@ export function Mensagens() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     
     // Marcar lidas
-    if (thread) {
+    if (thread && currentUserId) {
       const unreadIds = thread.filter((m: Mensagem) => m.destinatario_id === currentUserId && !m.lida).map((m: Mensagem) => m.id);
       unreadIds.forEach((id: string) => {
         marcarMensagemLida(id);
@@ -79,7 +90,8 @@ export function Mensagens() {
     enviarMutation.mutate({
       corpo_texto: inputText,
       id_destinatario: activeContact.id,
-      id_comunicado_origem: stateData?.comunicadoOrigem
+      id_comunicado_origem: stateData?.comunicadoOrigem,
+      aluno_id: stateData?.alunoId
     });
   };
 
@@ -89,6 +101,9 @@ export function Mensagens() {
         <div className="inbox-sidebar">
           <div className="sidebar-header">
             <h3>Mensagens</h3>
+            <button className="btn-new-chat" onClick={() => setIsNewChatModalOpen(true)} title="Nova Conversa">
+              <MessageCircle size={20} />
+            </button>
           </div>
           <div className="conversas-list">
             {loadingConversas && <p className="loading-text">Carregando...</p>}
@@ -180,6 +195,50 @@ export function Mensagens() {
           )}
         </div>
       </div>
+
+      {/* MODAL NOVA CONVERSA (Sugestões) */}
+      {isNewChatModalOpen && (
+        <div className="modal-overlay">
+          <div className="modal-content" style={{ maxWidth: '450px' }}>
+            <div className="modal-header">
+              <h3>Nova Conversa</h3>
+              <button className="btn-close" onClick={() => setIsNewChatModalOpen(false)}>×</button>
+            </div>
+            <p className="modal-subtitle">
+              {isSchoolStaff 
+                ? "Inicie uma conversa com os responsáveis dos alunos das turmas."
+                : "Inicie uma conversa com os professores das turmas de seus filhos."}
+            </p>
+            <div className="suggestions-list">
+              {sugeridos?.length === 0 && (
+                <p className="empty-text">
+                  {isSchoolStaff ? "Nenhum responsável encontrado." : "Nenhum professor encontrado."}
+                </p>
+              )}
+              {sugeridos?.map((s: any) => (
+                <div 
+                  key={s.id} 
+                  className="suggestion-item"
+                  onClick={() => {
+                    setActiveContact({ id: s.id, nome: s.nome });
+                    setIsNewChatModalOpen(false);
+                  }}
+                >
+                  <div className="conversa-avatar"><User size={20} /></div>
+                  <div className="suggestion-info">
+                    <h4>{s.nome}</h4>
+                    <span>
+                      {s.papel === 'professor' ? 'Professor' : 
+                       s.papel === 'coordenacao' ? 'Coordenação' : 
+                       s.papel === 'responsavel' ? 'Responsável' : 'Contato'}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

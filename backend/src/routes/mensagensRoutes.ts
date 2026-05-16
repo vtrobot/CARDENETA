@@ -3,7 +3,8 @@ import {
   getConversas,
   getThread,
   createMensagem,
-  markAsRead
+  markAsRead,
+  getContatosSugeridos
 } from '../controllers/mensagensController';
 import { verifySupabaseJWT } from '../middlewares/auth';
 
@@ -25,6 +26,9 @@ router.use(verifySupabaseJWT);
  *         description: Lista de conversas com a última mensagem.
  */
 router.get('/', getConversas);
+
+// Sugestão de contatos (ex: professores dos filhos)
+router.get('/contatos-sugeridos', getContatosSugeridos);
 
 // Retorna mensagens trocadas com um contato específico (thread)
 router.get('/:id/thread', getThread);

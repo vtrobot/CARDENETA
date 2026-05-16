@@ -1,4 +1,3 @@
-import React from 'react';
 import { AlertCircle, Clock, CheckCircle } from 'lucide-react';
 import './ComunicadoCard.css';
 

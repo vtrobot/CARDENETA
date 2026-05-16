@@ -113,7 +113,7 @@ router.post('/turmas', createTurma);
  *       403:
  *         description: Proibido
  */
-router.get('/usuarios', requireRole(['coordenacao']), getUsuariosByPapel);
+router.get('/usuarios', requireRole(['coordenacao', 'professor']), getUsuariosByPapel);
 
 /**
  * @swagger
@@ -218,7 +218,7 @@ router.post('/vinculos/professor-turma', requireRole(['coordenacao']), createVin
  *       401:
  *         description: Não autorizado
  */
-router.get('/alunos', requireRole(['coordenacao']), getAlunos);
+router.get('/alunos', requireRole(['coordenacao', 'professor']), getAlunos);
 
 /**
  * @swagger
@@ -322,7 +322,7 @@ router.post('/vinculos/aluno-responsavel', requireRole(['coordenacao']), createV
  *       401:
  *         description: Não autorizado
  */
-router.get('/vinculos/aluno-responsavel/:alunoId', requireRole(['coordenacao']), getVinculosByAluno);
+router.get('/vinculos/aluno-responsavel/:alunoId', requireRole(['coordenacao', 'professor']), getVinculosByAluno);
 
 /**
  * @swagger

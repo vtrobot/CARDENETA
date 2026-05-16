@@ -1,28 +1,27 @@
-# Tasks: Épico 2 — Mensageria Simples
+# Tasks: Implementação da Mensageria
 
-## Back-end (Node.js/Express)
+## Backend & Banco de Dados
+- [ ] **T01**: Verificar/Ajustar RLS na tabela `mensagens_diretas`.
+- [ ] **T02**: Validar se o endpoint `POST /mensagens` está associando corretamente o `aluno_id` se fornecido.
+- [ ] **T03**: Adicionar suporte a filtro de "contatos sugeridos" (ex: professores do meu filho).
 
-- [x] **B1: Políticas de Segurança (RLS) no Supabase**
-  - Adicionar as policies para `mensagens_diretas` garantindo acesso estrito ao `remetente_id` ou `destinatario_id`.
-- [x] **B2: Controller/Service GET `/api/mensagens`**
-  - Retornar uma lista de "Conversas" agrupadas (onde o usuário participa).
-- [x] **B3: Controller/Service GET `/api/mensagens/:id/thread`**
-  - Retornar o histórico sequencial de uma conversa baseada no `id_mensagem_resposta` ou `id_comunicado_origem`.
-- [x] **B4: Controller/Service POST `/api/mensagens`**
-  - Inserir nova mensagem.
-  - Implementar validação: Sanitização XSS básica e bloqueio de `corpo_texto` > 500 caracteres.
-- [x] **B5: Rota de Marcar como Lido (`PUT /api/mensagens/:id/lida`)**
-  - Atualiza o campo `lida = true` caso o usuário autenticado seja o `destinatario_id`.
+## Frontend - Infraestrutura
+- [ ] **T04**: Remover mocks de ID de usuário em `Mensagens.tsx` e usar o hook `useAuth`.
+- [ ] **T05**: Garantir que o `api.ts` tenha todos os métodos necessários (fetchConversas, fetchThread, enviarMensagem, marcarMensagemLida).
 
-## Front-end (React/Vite)
+## Frontend - Fluxo Escola -> Responsável
+- [ ] **T06**: No `AlunosTab.tsx`, criar o modal `ModalSelecaoResponsavel` que busca e lista os responsáveis do aluno e navega para `/mensagens` ao selecionar.
+- [ ] **T07**: Implementar navegação programática para `/mensagens` passando o `responsavel_id` no state.
 
-- [x] **F1: Adicionar Rota `/mensagens`**
-  - Criar o arquivo `Mensagens.tsx`, incluir no roteador (`App.tsx`) e na Navigation Bar.
-- [x] **F2: Layout "Inbox" (Lista de Conversas + Área do Chat)**
-  - Construir CSS em grid separando as conversas da área de visualização das respostas.
-- [x] **F3: Envio de Nova Mensagem e Respostas**
-  - Formulário contendo restrição visual de limite de caracteres (500).
-  - Integrar disparo com `POST /api/mensagens` via TanStack Query.
-- [x] **F4: Integração com o Mural de Comunicados**
-  - Atualizar o `ComunicadoModal` (do Épico 1) para exibir o botão "Dúvidas?".
-  - Esse botão deve redirecionar/abrir modal preenchendo automaticamente o `id_destinatario` (autor do comunicado) e `id_comunicado_origem`.
+## Frontend - Fluxo Responsável -> Escola
+- [ ] **T08**: Na página de `Mensagens.tsx`, implementar o botão "Nova Conversa" que filtra e lista apenas os professores vinculados às turmas dos filhos do usuário.
+- [ ] **T09**: Melhorar o visual das bolhas de mensagem (distinção Clara entre 'eu' e 'eles').
+
+## Polimento & UX
+- [ ] **T10**: Implementar contador de mensagens não lidas no menu principal.
+- [ ] **T11**: Adicionar feedback visual (loading states e toasts de erro/sucesso).
+
+## Verificação
+- [ ] **V01**: Testar envio de mensagem do Professor para o Responsável.
+- [ ] **V02**: Testar resposta do Responsável para o Professor.
+- [ ] **V03**: Verificar se o contador de mensagens não lidas atualiza corretamente.

@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, Navigate, useNavigate } from 'react-router-dom';
-import { BookOpen, UserCircle, MessageSquare, LogOut } from 'lucide-react';
+import { BookOpen, MessageSquare, LogOut } from 'lucide-react';
 import { Mural } from './pages/Mural';
 import { PainelGestao } from './pages/PainelGestao';
 import { Mensagens } from './pages/Mensagens';
@@ -10,9 +10,21 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { supabase } from './lib/supabase';
 import './index.css';
 
+import { useQuery } from '@tanstack/react-query';
+import { fetchConversas } from './services/api';
+
 function AppLayout({ children }: { children: React.ReactNode }) {
-  const { role } = useAuth();
+  const { role, user } = useAuth();
   const navigate = useNavigate();
+
+  const { data: conversas } = useQuery({
+    queryKey: ['conversas'],
+    queryFn: fetchConversas,
+    enabled: !!user,
+    refetchInterval: 10000, // Pooling p/ o badge
+  });
+
+  const unreadCount = conversas?.reduce((acc: number, c: any) => acc + (c.nao_lidas || 0), 0) || 0;
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -28,7 +40,11 @@ function AppLayout({ children }: { children: React.ReactNode }) {
         </div>
         <nav className="main-nav">
           {role === 'responsavel' && <Link to="/mural">Mural</Link>}
-          <Link to="/mensagens" className="nav-icon-link" title="Mensagens"><MessageSquare size={20} /> Mensagens</Link>
+          <Link to="/mensagens" className="nav-icon-link" title="Mensagens" style={{ position: 'relative' }}>
+            <MessageSquare size={20} /> 
+            <span>Mensagens</span>
+            {unreadCount > 0 && <span className="nav-badge">{unreadCount}</span>}
+          </Link>
           {(role === 'professor' || role === 'coordenacao') && <Link to="/painel-gestao">Painel Gestão</Link>}
           
           <div className="user-profile">

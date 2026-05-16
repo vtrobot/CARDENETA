@@ -26,7 +26,7 @@ export function PainelGestao() {
     <div className="painel-container">
       <header className="painel-header">
         <h2>Painel de Gestão</h2>
-        {role === 'coordenacao' && (
+        {(role === 'coordenacao' || role === 'professor') && (
           <div className="tabs-container">
             <button 
               className={`tab-btn ${activeTab === 'comunicados' ? 'active' : ''}`}
@@ -50,38 +50,44 @@ export function PainelGestao() {
         <ComunicadosTab turmas={turmas} />
       )}
 
-      {activeTab === 'admin' && role === 'coordenacao' && (
+      {activeTab === 'admin' && (role === 'coordenacao' || role === 'professor') && (
         <div className="tab-content">
-          <div className="admin-subtabs" style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', borderBottom: '1px solid #e2e8f0', paddingBottom: '1rem' }}>
-            <button 
-              className={`tab-btn ${adminSubTab === 'usuarios' ? 'active' : ''}`} 
-              onClick={() => setAdminSubTab('usuarios')} 
-              style={{ padding: '0.5rem 1rem', background: 'none', border: 'none', borderBottom: adminSubTab === 'usuarios' ? '2px solid #2563eb' : 'none', cursor: 'pointer', fontWeight: adminSubTab === 'usuarios' ? '600' : 'normal', color: adminSubTab === 'usuarios' ? '#2563eb' : '#64748b' }}
-              aria-label="Sub-aba Usuários"
-            >
-              Usuários
-            </button>
-            <button 
-              className={`tab-btn ${adminSubTab === 'turmas' ? 'active' : ''}`} 
-              onClick={() => setAdminSubTab('turmas')} 
-              style={{ padding: '0.5rem 1rem', background: 'none', border: 'none', borderBottom: adminSubTab === 'turmas' ? '2px solid #2563eb' : 'none', cursor: 'pointer', fontWeight: adminSubTab === 'turmas' ? '600' : 'normal', color: adminSubTab === 'turmas' ? '#2563eb' : '#64748b' }}
-              aria-label="Sub-aba Turmas"
-            >
-              Turmas
-            </button>
-            <button 
-              className={`tab-btn ${adminSubTab === 'alunos' ? 'active' : ''}`} 
-              onClick={() => setAdminSubTab('alunos')} 
-              style={{ padding: '0.5rem 1rem', background: 'none', border: 'none', borderBottom: adminSubTab === 'alunos' ? '2px solid #2563eb' : 'none', cursor: 'pointer', fontWeight: adminSubTab === 'alunos' ? '600' : 'normal', color: adminSubTab === 'alunos' ? '#2563eb' : '#64748b' }}
-              aria-label="Sub-aba Alunos"
-            >
-              Alunos
-            </button>
-          </div>
+          {role === 'coordenacao' ? (
+            <>
+              <div className="admin-subtabs" style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', borderBottom: '1px solid #e2e8f0', paddingBottom: '1rem' }}>
+                <button 
+                  className={`tab-btn ${adminSubTab === 'usuarios' ? 'active' : ''}`} 
+                  onClick={() => setAdminSubTab('usuarios')} 
+                  style={{ padding: '0.5rem 1rem', background: 'none', border: 'none', borderBottom: adminSubTab === 'usuarios' ? '2px solid #2563eb' : 'none', cursor: 'pointer', fontWeight: adminSubTab === 'usuarios' ? '600' : 'normal', color: adminSubTab === 'usuarios' ? '#2563eb' : '#64748b' }}
+                  aria-label="Sub-aba Usuários"
+                >
+                  Usuários
+                </button>
+                <button 
+                  className={`tab-btn ${adminSubTab === 'turmas' ? 'active' : ''}`} 
+                  onClick={() => setAdminSubTab('turmas')} 
+                  style={{ padding: '0.5rem 1rem', background: 'none', border: 'none', borderBottom: adminSubTab === 'turmas' ? '2px solid #2563eb' : 'none', cursor: 'pointer', fontWeight: adminSubTab === 'turmas' ? '600' : 'normal', color: adminSubTab === 'turmas' ? '#2563eb' : '#64748b' }}
+                  aria-label="Sub-aba Turmas"
+                >
+                  Turmas
+                </button>
+                <button 
+                  className={`tab-btn ${adminSubTab === 'alunos' ? 'active' : ''}`} 
+                  onClick={() => setAdminSubTab('alunos')} 
+                  style={{ padding: '0.5rem 1rem', background: 'none', border: 'none', borderBottom: adminSubTab === 'alunos' ? '2px solid #2563eb' : 'none', cursor: 'pointer', fontWeight: adminSubTab === 'alunos' ? '600' : 'normal', color: adminSubTab === 'alunos' ? '#2563eb' : '#64748b' }}
+                  aria-label="Sub-aba Alunos"
+                >
+                  Alunos
+                </button>
+              </div>
 
-          {adminSubTab === 'usuarios' && <UsuariosTab />}
-          {adminSubTab === 'turmas' && <TurmasTab />}
-          {adminSubTab === 'alunos' && <AlunosTab turmas={turmas} />}
+              {adminSubTab === 'usuarios' && <UsuariosTab />}
+              {adminSubTab === 'turmas' && <TurmasTab />}
+              {adminSubTab === 'alunos' && <AlunosTab turmas={turmas} />}
+            </>
+          ) : (
+            <AlunosTab turmas={turmas} />
+          )}
         </div>
       )}
     </div>
