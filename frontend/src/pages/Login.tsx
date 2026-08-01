@@ -58,7 +58,7 @@ export function Login() {
       <div className="login-card">
         <div className="login-header">
           <BookOpen className="logo-icon-login" size={48} />
-          <h2>Caderneta Escola & Família</h2>
+          <h2>Caderneta Escola & Família CMEI Cassiopéia</h2>
           <p>Acesse sua conta para continuar</p>
         </div>
 

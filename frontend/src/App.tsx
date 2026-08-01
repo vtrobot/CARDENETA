@@ -36,7 +36,7 @@ function AppLayout({ children }: { children: React.ReactNode }) {
       <header className="app-header">
         <div className="logo-container">
           <BookOpen className="logo-icon" size={28} />
-          <h1>Caderneta Escola & Família</h1>
+          <h1>Caderneta Escola & Família - CMEI Cassiopéia</h1>
         </div>
         <nav className="main-nav">
           {role === 'responsavel' && <Link to="/mural">Mural</Link>}
