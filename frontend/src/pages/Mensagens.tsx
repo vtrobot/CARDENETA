@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { fetchConversas, fetchThread, enviarMensagem, marcarMensagemLida, fetchContatosSugeridos } from '../services/api';
-import { Send, User, MessageCircle } from 'lucide-react';
+import { Send, User, MessageCircle, ArrowLeft } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import './Mensagens.css';
@@ -97,7 +97,7 @@ export function Mensagens() {
 
   return (
     <div className="mensagens-container">
-      <div className="inbox-layout">
+      <div className={`inbox-layout ${activeContact ? 'has-active-contact' : ''}`}>
         <div className="inbox-sidebar">
           <div className="sidebar-header">
             <h3>Mensagens</h3>
@@ -145,6 +145,9 @@ export function Mensagens() {
           {activeContact ? (
             <>
               <div className="chat-header">
+                <button className="btn-back" onClick={() => setActiveContact(null)} title="Voltar para conversas">
+                  <ArrowLeft size={20} />
+                </button>
                 <div className="conversa-avatar"><User size={24} /></div>
                 <h3>{activeContact.nome}</h3>
               </div>

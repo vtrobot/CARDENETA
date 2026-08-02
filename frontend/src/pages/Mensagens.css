@@ -355,3 +355,64 @@
   color: #94a3b8;
   padding: 2rem;
 }
+
+.btn-back {
+  display: none;
+  background: none;
+  border: none;
+  color: #4f46e5;
+  cursor: pointer;
+  padding: 0.5rem;
+  margin-right: 0.25rem;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+}
+
+.btn-back:hover {
+  background-color: #f1f5f9;
+}
+
+@media (max-width: 768px) {
+  .mensagens-container {
+    height: calc(100vh - 140px); /* Ajustado para compensar a quebra do header */
+    padding: 0.5rem;
+  }
+
+  .btn-back {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .inbox-sidebar {
+    width: 100%;
+  }
+
+  .inbox-chat {
+    width: 100%;
+  }
+
+  /* Exibição condicional baseada na classe has-active-contact */
+  .inbox-layout:not(.has-active-contact) .inbox-chat {
+    display: none;
+  }
+
+  .inbox-layout.has-active-contact .inbox-sidebar {
+    display: none;
+  }
+  
+  .message-bubble {
+    max-width: 85%;
+  }
+
+  .chat-input-area {
+    padding: 0.75rem 1rem;
+    gap: 0.5rem;
+  }
+
+  .btn-send {
+    width: 40px;
+    height: 40px;
+  }
+}
+

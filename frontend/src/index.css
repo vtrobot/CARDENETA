@@ -188,3 +188,37 @@ body {
   border: 2px solid var(--primary);
 }
 
+@media (max-width: 768px) {
+  .app-header {
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+    align-items: stretch;
+    text-align: center;
+  }
+  
+  .logo-container {
+    justify-content: center;
+  }
+  
+  .logo-container h1 {
+    font-size: 1.2rem;
+  }
+  
+  .main-nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+  }
+  
+  .user-profile {
+    padding: 0.25rem 0.75rem;
+  }
+
+  .app-main {
+    padding: 1.5rem 0.5rem;
+  }
+}
+
+

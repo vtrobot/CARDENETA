@@ -233,3 +233,65 @@
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+@media (max-width: 768px) {
+  .painel-container {
+    padding: 1rem 0.5rem;
+  }
+  
+  .tabs-container, .admin-subtabs {
+    flex-wrap: wrap !important;
+    gap: 0.5rem !important;
+  }
+  
+  .tab-btn {
+    padding: 0.5rem 1rem !important;
+    font-size: 0.9rem !important;
+    flex-grow: 1;
+    text-align: center;
+  }
+  
+  .content-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .header-actions {
+    width: 100%;
+    flex-direction: column;
+  }
+  
+  .header-actions button {
+    width: 100%;
+  }
+
+  .admin-list {
+    padding: 1rem;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .admin-table {
+    min-width: 600px; /* Garante que a tabela não esprema colunas excessivamente e role horizontalmente */
+  }
+  
+  .admin-table th, .admin-table td {
+    padding: 0.75rem 0.5rem;
+    font-size: 0.85rem;
+  }
+  
+  .form-card {
+    padding: 1.5rem 1rem;
+  }
+  
+  .form-actions {
+    flex-direction: column-reverse;
+    gap: 0.5rem;
+  }
+  
+  .form-actions button {
+    width: 100%;
+  }
+}
+
