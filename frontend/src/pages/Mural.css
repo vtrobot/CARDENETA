@@ -175,3 +175,38 @@
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+@media (max-width: 768px) {
+  .mural-container {
+    padding: 1rem 0.5rem;
+  }
+  
+  .mural-header h2 {
+    font-size: 1.5rem;
+  }
+  
+  .modal-content {
+    max-height: 95vh;
+  }
+  
+  .modal-header, .modal-body, .modal-footer {
+    padding: 1rem;
+  }
+  
+  .modal-footer.action-required {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+    text-align: center;
+  }
+  
+  .modal-footer.action-required button, .modal-footer.standard button {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .warning-text {
+    font-size: 0.85rem;
+  }
+}
+

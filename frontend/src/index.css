@@ -47,7 +47,7 @@ body {
   font-weight: 600;
 }
 
-.app-main {
+.app-main, .app-main-content {
   flex: 1;
   padding: 3rem 1rem;
   display: flex;
@@ -188,6 +188,10 @@ body {
   border: 2px solid var(--primary);
 }
 
+.title-short {
+  display: none;
+}
+
 @media (max-width: 768px) {
   .app-header {
     flex-direction: column;
@@ -205,6 +209,14 @@ body {
     font-size: 1.2rem;
   }
   
+  .title-full {
+    display: none;
+  }
+  
+  .title-short {
+    display: inline;
+  }
+  
   .main-nav {
     flex-direction: row;
     flex-wrap: wrap;
@@ -216,7 +228,7 @@ body {
     padding: 0.25rem 0.75rem;
   }
 
-  .app-main {
+  .app-main, .app-main-content {
     padding: 1.5rem 0.5rem;
   }
 }

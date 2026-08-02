@@ -115,3 +115,23 @@
 .btn-link:hover {
   text-decoration: underline;
 }
+
+@media (max-width: 480px) {
+  .login-container {
+    background-color: white;
+    background-image: none;
+    align-items: flex-start;
+    padding: 2rem 1.5rem;
+  }
+
+  .login-card {
+    box-shadow: none;
+    padding: 0;
+    max-width: 100%;
+  }
+
+  .login-header {
+    margin-bottom: 1.5rem;
+  }
+}
+
